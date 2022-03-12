@@ -489,12 +489,6 @@ Wire Wire Line
 Wire Wire Line
 	7250 4550 6950 4550
 Wire Wire Line
-	6950 4650 7250 4650
-Wire Wire Line
-	7250 4750 6950 4750
-Wire Wire Line
-	6950 4850 7250 4850
-Wire Wire Line
 	7250 4950 6950 4950
 Wire Wire Line
 	6950 3350 7250 3350
@@ -710,7 +704,6 @@ F2 "SHIFT_SER" I L 9600 4900 50
 F3 "SHIFT_CLK" I L 9600 5000 50 
 F4 "~SHIFT_CLR~" I L 9600 5100 50 
 F5 "SHIFT_RCK" I L 9600 5200 50 
-F6 "~SHIFT_EN~" I L 9600 5300 50 
 $EndSheet
 $Sheet
 S 950  3000 900  750 
@@ -786,22 +779,14 @@ Text Label 9250 4900 2    50   ~ 0
 SHIFT_SER
 Text Label 9250 5000 2    50   ~ 0
 SHIFT_CLK
-Text Label 9250 5100 2    50   ~ 0
-~SHIFT_CLR~
 Text Label 9250 5200 2    50   ~ 0
 SHIFT_RCK
-Text Label 9250 5300 2    50   ~ 0
-~SHIFT_EN~
 Text Label 7250 4450 0    50   ~ 0
 SHIFT_SER
 Text Label 7250 4550 0    50   ~ 0
 SHIFT_CLK
 Text Label 7250 4650 0    50   ~ 0
-~SHIFT_CLR~
-Text Label 7250 4750 0    50   ~ 0
 SHIFT_RCK
-Text Label 7250 4850 0    50   ~ 0
-~SHIFT_EN~
 Wire Wire Line
 	9250 4900 9600 4900
 Wire Wire Line
@@ -810,8 +795,6 @@ Wire Wire Line
 	9250 5100 9600 5100
 Wire Wire Line
 	9600 5200 9250 5200
-Wire Wire Line
-	9250 5300 9600 5300
 Text Notes 750  4850 0    50   ~ 0
 750mA max
 Text Notes 800  5300 0    50   ~ 0
@@ -846,4 +829,16 @@ Wire Wire Line
 	7250 5350 7250 5500
 Wire Wire Line
 	7250 5800 7250 5950
+NoConn ~ 7150 4850
+Wire Wire Line
+	7150 4850 6950 4850
+Text Label 9250 5100 2    50   ~ 0
+~RESET~
+Wire Wire Line
+	6950 4650 7250 4650
+NoConn ~ 7150 4750
+Wire Wire Line
+	7150 4750 6950 4750
+Text Notes 5800 750  0    50   ~ 0
+Ordre PORTA et PORTC choisi\npour être conforme à l’attendu par la PS2
 $EndSCHEMATC

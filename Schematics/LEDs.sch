@@ -42,8 +42,6 @@ Text HLabel 1400 2150 0    50   Input ~ 0
 ~SHIFT_CLR~
 Text HLabel 1400 2350 0    50   Input ~ 0
 SHIFT_RCK
-Text HLabel 1400 2450 0    50   Input ~ 0
-~SHIFT_EN~
 Wire Wire Line
 	1400 1850 1800 1850
 Wire Wire Line
@@ -53,7 +51,7 @@ Wire Wire Line
 Wire Wire Line
 	1800 2350 1400 2350
 Wire Wire Line
-	1400 2450 1800 2450
+	1650 2450 1800 2450
 Text Label 2850 1850 0    50   ~ 0
 LED-UL
 Text Label 2850 1950 0    50   ~ 0
@@ -1129,4 +1127,8 @@ Wire Wire Line
 Connection ~ 2200 3050
 Wire Wire Line
 	2200 3050 2200 3150
+Wire Wire Line
+	1650 2450 1650 3050
+Wire Wire Line
+	1650 3050 2200 3050
 $EndSCHEMATC

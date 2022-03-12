@@ -197,6 +197,68 @@ static void disable_watchdog(void) {
     WDTCSR = 0x00;
 }
 
+
+
+
+// TODO : Refactor this...
+
+
+#define HC595_PORT              PORTD
+#define HC595_SER_POS           PD2      // Data pin (DS) pin location
+#define HC595_CLOCK_POS         PD3      // Shift Clock (SH_CP) pin location
+#define HC595_STORE_CLOCK_POS   PD4      // Store Clock (ST_CP) pin location
+#define HC595_CLEAR_CP_POS      PD5      // Clear pin location
+//void shiftInit()
+//{
+//   //Make the Data(DS), Shift clock (SH_CP), Store Clock (ST_CP) lines output
+//   HC595_DDR|=((1<<HC595_CLOCK_POS)|(1<<HC595_STORE_CLOCK_POS)|(1<<HC595_SER_POS));
+//}
+
+#define HC595DataHigh()     (HC595_PORT |=  _BV(HC595_SER_POS))
+#define HC595DataLow()      (HC595_PORT &= ~_BV(HC595_SER_POS))
+
+void shiftPulse()
+{
+    HC595_PORT |=  _BV(HC595_CLOCK_POS); //HIGH
+    HC595_PORT &= ~_BV(HC595_CLOCK_POS); //LOW
+}
+
+void shiftLatch()
+{
+    HC595_PORT |=  _BV(HC595_STORE_CLOCK_POS);  //HIGH
+    HC595_PORT &= ~_BV(HC595_STORE_CLOCK_POS);  //LOW
+}
+
+// Write a byte to Shift registerr
+void activ_leds(uint8_t data)
+{
+    // MSB first
+    for (uint8_t i=0; i<8; i++)
+    {
+        if(data & 0b10000000)
+        {
+            HC595DataHigh();
+        }
+        else
+        {
+            HC595DataLow();
+        }
+
+        shiftPulse();
+        data=data<<1;
+    }
+
+    shiftLatch();
+}
+
+
+
+
+
+
+
+
+
 static void global_init(void) {
     cli();
 
@@ -226,9 +288,9 @@ static void global_init(void) {
     //                     XTAL1 -| 13       28 |- PC6 <------------ B1-CROSS
     //    RX --------------> PD0 -| 14       27 |- PC5 <------------ B2-CIRCLE
     //    TX <-------------- PD1 -| 15       26 |- PC4 <------------ B4-TRIANGLE
-    //                       PD2 -| 16       25 |- PC3 <------------ R1
-    //                       PD3 -| 17       24 |- PC2 <------------ L1
-    //                       PD4 -| 18       23 |- PC1 <------------ R2
+    //    SHIFT_SER <------- PD2 -| 16       25 |- PC3 <------------ R1
+    //    SHIFT_CLK <------- PD3 -| 17       24 |- PC2 <------------ L1
+    //    SHIFT_RCK <------- PD4 -| 18       23 |- PC1 <------------ R2
     //                       PD5 -| 19       22 |- PC0 <------------ L2
     //                       PD6 -| 20       21 |- PD7 ------------> LED
     //                             -------------
@@ -237,7 +299,7 @@ static void global_init(void) {
     DDRA = 0b00000000;  // 
     DDRB = 0b01001000;  // MISO + ACK
     DDRC = 0b00000000;  // 
-    DDRD = 0b10000010;  // LED + TX
+    DDRD = 0b10011110;  // LED + TX + SHIFT Register
 
     // pull-up (1)
     PORTA = 0xFF
@@ -248,7 +310,6 @@ static void global_init(void) {
     PORTC = 0xFF
            ;
     PORTD = 0x00
-            | _BV(PD2)      // Button
             ;
 
     // Déjà fait
@@ -385,6 +446,7 @@ int main(void) {
         while (1) {
             usbPoll();
             updateHIDReport(&currentReport);
+            activ_leds(~PINC);
 
             if (usbInterruptIsReady())
             {
