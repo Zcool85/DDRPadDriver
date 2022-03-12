@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "${workspaceFolder}/include",
+                    "${workspaceFolder}/usbdrv",
+                    "/usr/local/Cellar/avr-gcc@9/9.3.0_3/avr/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "${workspaceFolder}",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/usbdrv",
+                "/usr/local/Cellar/avr-gcc@9/9.3.0_3/avr/include"
+            ],
+            "defines": ["__AVR_ATmega324P__", "F_CPU=12000000UL"],
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c99",
+            "cppStandard": "c++98",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
