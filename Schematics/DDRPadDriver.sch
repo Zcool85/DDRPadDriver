@@ -841,4 +841,8 @@ Wire Wire Line
 	7150 4750 6950 4750
 Text Notes 5800 750  0    50   ~ 0
 Ordre PORTA et PORTC choisi\npour être conforme à l’attendu par la PS2
+Text Notes 1050 4400 0    50   ~ 0
+TODO : tester DMG2305
+Text Notes 3150 7250 0    50   ~ 0
+TODO : Les 10K c’est pas bon…\nIl faut les enlever je pense
 $EndSCHEMATC
