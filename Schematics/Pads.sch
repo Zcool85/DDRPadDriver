@@ -1232,5 +1232,5 @@ Wire Wire Line
 Text HLabel 1800 6600 0    50   Output ~ 0
 R3
 Text Notes 700  800  0    50   ~ 0
-TODO : A tester en 3.3v (surtout la diode… Prendre des 3,6V ?)\nDu coup, a rester en 5V
+TODO : A tester en 3.3v (surtout la diode… Prendre des 3,6V ?)\nDu coup, a retester en 5V
 $EndSCHEMATC

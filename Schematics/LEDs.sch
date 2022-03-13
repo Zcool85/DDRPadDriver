@@ -1131,8 +1131,6 @@ Wire Wire Line
 	1650 2450 1650 3050
 Wire Wire Line
 	1650 3050 2200 3050
-Text Notes 1800 800  0    50   ~ 0
-TODO : Revoir l’odre des LED
 Text Notes 700  7600 0    50   ~ 0
 NOTE : Tout a été testé en 3.3v et 5V\nTout est OK
 $EndSCHEMATC

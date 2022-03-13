@@ -98,6 +98,9 @@ echo -n -e '\xF7' > lfuse.bin
 // Gestion de l'USART
 #include "usart.h"
 
+// HC595
+#include "hc595.h"
+
 // PlayStation 2 headers
 #include "definitions.h"
 #include "autre.h"
@@ -141,10 +144,19 @@ static void global_init(void);
 static void updateHIDReport(HIDReport *report);
 
 /**
+ * @brief       Fonction de mise à jour des LEDs actives
+ * @details     Cette fonction active la ou les leds correspondant
+ *              aux touches appuyées sur le tapis.
+ *              La correspondance se fait en fonction d'un tapis pour PS2
+ */
+static void updateLEDs(void);
+
+/**
  * @brief       Point d'entrée principal du programme
  * @details     Fonction appelée au démarrage du microcontroleur
  */
 int main(void);
+
 
 /******************************************************************************
  * Local variables
@@ -179,11 +191,27 @@ static void updateHIDReport(HIDReport *report)
 		| (bit_is_clear(PINC, PINA7) ? HID_MASK_BTN_16 : 0)
 	;
 
+    // TODO : A garder ? (DEBUG)
     if (report->buttons > 0) {
         PORTD |=  _BV(PORTD7);
     } else {
         PORTD &= ~_BV(PORTD7);
     }
+}
+
+static void updateLEDs(void) {
+    // Map PS2 pad to led
+    uint8_t leds = 0x00
+        | (bit_is_clear(PINC, PINC7) ? _BV(7) : 0) // LED-BR (SQUARE B3   - PC 7)
+        | (bit_is_clear(PINA, PINA6) ? _BV(6) : 0) // LED-B  (DOWN        - PA 6)
+        | (bit_is_clear(PINC, PINC4) ? _BV(5) : 0) // LED-BL (TRIANGLE B4 - PC 4)
+        | (bit_is_clear(PINA, PINA5) ? _BV(4) : 0) // LED-R  (RIGHT       - PA 5)
+        | (bit_is_clear(PINA, PINA7) ? _BV(3) : 0) // LED-L  (LEFT        - PA 7)
+        | (bit_is_clear(PINC, PINC5) ? _BV(2) : 0) // LED-UR (CIRCLE B2   - PC 5)
+        | (bit_is_clear(PINA, PINA4) ? _BV(1) : 0) // LED-U  (UP          - PA 4)
+        | (bit_is_clear(PINC, PINC6) ? _BV(0) : 0) // LED-UL (CROSS B1    - PC 6)
+    ;
+    HC595_write(leds);
 }
 
 static void disable_watchdog(void) {
@@ -196,68 +224,6 @@ static void disable_watchdog(void) {
     // Turn off WDT
     WDTCSR = 0x00;
 }
-
-
-
-
-// TODO : Refactor this...
-
-
-#define HC595_PORT              PORTD
-#define HC595_SER_POS           PD2      // Data pin (DS) pin location
-#define HC595_CLOCK_POS         PD3      // Shift Clock (SH_CP) pin location
-#define HC595_STORE_CLOCK_POS   PD4      // Store Clock (ST_CP) pin location
-#define HC595_CLEAR_CP_POS      PD5      // Clear pin location
-//void shiftInit()
-//{
-//   //Make the Data(DS), Shift clock (SH_CP), Store Clock (ST_CP) lines output
-//   HC595_DDR|=((1<<HC595_CLOCK_POS)|(1<<HC595_STORE_CLOCK_POS)|(1<<HC595_SER_POS));
-//}
-
-#define HC595DataHigh()     (HC595_PORT |=  _BV(HC595_SER_POS))
-#define HC595DataLow()      (HC595_PORT &= ~_BV(HC595_SER_POS))
-
-void shiftPulse()
-{
-    HC595_PORT |=  _BV(HC595_CLOCK_POS); //HIGH
-    HC595_PORT &= ~_BV(HC595_CLOCK_POS); //LOW
-}
-
-void shiftLatch()
-{
-    HC595_PORT |=  _BV(HC595_STORE_CLOCK_POS);  //HIGH
-    HC595_PORT &= ~_BV(HC595_STORE_CLOCK_POS);  //LOW
-}
-
-// Write a byte to Shift registerr
-void activ_leds(uint8_t data)
-{
-    // MSB first
-    for (uint8_t i=0; i<8; i++)
-    {
-        if(data & 0b10000000)
-        {
-            HC595DataHigh();
-        }
-        else
-        {
-            HC595DataLow();
-        }
-
-        shiftPulse();
-        data=data<<1;
-    }
-
-    shiftLatch();
-}
-
-
-
-
-
-
-
-
 
 static void global_init(void) {
     cli();
@@ -446,7 +412,7 @@ int main(void) {
         while (1) {
             usbPoll();
             updateHIDReport(&currentReport);
-            activ_leds(~PINC);
+            updateLEDs();
 
             if (usbInterruptIsReady())
             {
