@@ -276,7 +276,7 @@ static void global_init(void) {
     PORTC = 0xFF
            ;
     PORTD = 0x00
-            ;
+           ;
 
     // Déjà fait
 	//// Hardware SPI pin setup 
@@ -391,6 +391,8 @@ const char *bit_rep[16] = {
 int main(void) {
 
     global_init();
+
+    // TODO : Tester avec un condo 47uF si le lancement est mieux ou pas
 
     printf("\n");
     printf("-------- Démarrage ------------\n");

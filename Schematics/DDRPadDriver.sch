@@ -696,7 +696,7 @@ Wire Wire Line
 Wire Wire Line
 	7950 2100 7950 1850
 $Sheet
-S 9600 4650 850  950 
+S 9600 4650 900  800 
 U 62582603
 F0 "LEDs" 50
 F1 "LEDs.sch" 50
@@ -845,4 +845,6 @@ Text Notes 1050 4400 0    50   ~ 0
 TODO : tester DMG2305
 Text Notes 3150 7250 0    50   ~ 0
 TODO : Les 10K c’est pas bon…\nIl faut les enlever je pense
+Text Notes 7050 1250 0    50   ~ 0
+TODO : (Pour SCK/MOSI/MISO dédiée à la PS2)\n- Déplacer D- et D+ sur PD6 et PD7\n- Déplacer PB2 sur PD5\n- Supprimer la led témoin
 $EndSCHEMATC
