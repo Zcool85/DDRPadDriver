@@ -809,8 +809,6 @@ Wire Wire Line
 	6950 4650 7250 4650
 Text Notes 5800 750  0    50   ~ 0
 Ordre PORTA et PORTC choisi\npour être conforme à l’attendu par la PS2
-Text Notes 1050 4400 0    50   ~ 0
-TODO : tester DMG2305
 Text Notes 3050 7400 0    50   ~ 0
 La ligne PSX_RXD étant en collecteur\nouvert, il ne lui faut pas de 10K.\nLa 10K sur la ligne PSX_TXD permet de donner\npriorité à l’ISP.
 Wire Wire Line
