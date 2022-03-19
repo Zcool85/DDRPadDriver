@@ -89,7 +89,6 @@ echo -n -e '\xF7' > lfuse.bin
 #include <avr/wdt.h>
 #include <util/delay.h>
 #include <stdio.h>
-#include <avr/cpufunc.h>
 
 
 /******************************************************************************
@@ -104,7 +103,6 @@ echo -n -e '\xF7' > lfuse.bin
 
 // PlayStation 2 headers
 #include "definitions.h"
-#include "autre.h"
 
 // USB Headers
 #include "usbdrv.h"
@@ -264,12 +262,11 @@ static void global_init(void) {
 
     // 1 output; 0 input
     DDRA = 0b00000000;  // 
-    //DDRB = 0b01001000;  // MISO + ACK
     DDRB = 0b00000000;  // MISO (Hi-Z) + ACK (Hi-Z)
     DDRC = 0b00000000;  // 
     DDRD = 0b10011110;  // LED + TX + SHIFT Register
 
-    // pull-up (1)
+    // pull-up (set to 1)
     PORTA = 0xFF
            ;
     PORTB = 0x00
@@ -281,47 +278,10 @@ static void global_init(void) {
     PORTD = 0x00
            ;
 
-    // Déjà fait
-	//// Hardware SPI pin setup 
-	//SPI_DDR |= _BV(ACK) | _BV(MISO);
-	//SPI_PORT |= _BV(SS);	// Enable pull-up resistor on SS pin
-
-
-    // NOTES : https://gist.github.com/scanlime/5042071
-
-    // Enable slave SPI
-    // LSB first
-    // CPOL / CPHA : Mode 3 (Cf. diagrammes https://store.curiousinventor.com/guides/PS2/)
-    //SPCR = 0x00
-    //     //| _BV(SPIE)    // SPI Interrupt Enable
-    //     | _BV(SPE)
-    //     | _BV(DORD)
-    //     | _BV(CPOL)
-    //     | _BV(CPHA)
-    //     ;
-
-    // Déjà fait
-	//// Configure hardware SPI registers (pg.173)
-	//// SPE enables SPI hardware; DORD sets data order to LSB first; CPOL sets clock polarity (high when idle)
-	//// CPHA selects data setup on falling edge of clock, read on rising edge
-	//SPCR |= _BV(SPE) | _BV(DORD) | _BV(CPOL) | _BV(CPHA);
-
-	/*Set up 8-bit timer/counter 2*/
-	// Timer/Counter 0 Control Register B : Prescaler set to divide system clock (8mHz) by 32 for timer clock
-    // 64
-	//TCCR2B	|= _BV(CS22); //_BV(CS20) | _BV(CS21);
-	// Write 0x01 to TCNT2 to reset timer, check for TOV2 bit in TIFR2 for timer overflow.
-
-    ///////////////// ACK v1
-    // Set Ack up
-    //SPI_PORT |= _BV(ACK);
-
-    ///////////////// ACK v2 : En cours de test
     // Set Ack Hi-Z
     SPI_DDR  &= ~_BV(ACK);      // DIR as input
     SPI_PORT &= ~_BV(ACK);      // PORT tri state (Hi-Z)
 
-    ///////////////// MISO v2 : En cours de test
     // Set DATA (MISO) Hi-Z
     SPI_DDR  &= ~_BV(MISO);      // DIR as input
     SPI_PORT &= ~_BV(MISO);      // PORT tri state (Hi-Z)
@@ -335,92 +295,18 @@ static void global_init(void) {
 }
 
 void ack(void) {
-    _delay_us(8);
+    _delay_us(4);
     // Set ack low
-    //SPI_PORT &= ~_BV(ACK);      // Keep port bit clear    (0,1us)
-    SPI_DDR  |=  _BV(ACK);      // Set ACK to low
-    //_delay_us(1.75);
-    _NOP();
-    _NOP();
-    _NOP();
-    _NOP();
-    _NOP();
-    _NOP();
-    _NOP();
-    _NOP();
-    _NOP(); // 1,417us
-    _NOP();
-    _NOP();
-    _NOP();
-    _NOP();
-    _NOP(); // 1,917 (_NOP = 0,1us)
-    _NOP(); // 2us
-    _NOP();
-    _NOP();
-    _NOP();
+    SPI_DDR  |=  _BV(ACK);
+    _delay_us(2);
     // Set ack Hi-Z
-    //SPI_PORT &= ~_BV(ACK);      // PORT tri state (Hi-Z) (0,1us)
-    SPI_DDR  &= ~_BV(ACK);      // DIR as input
+    SPI_DDR  &= ~_BV(ACK);
 }
-
-//void ack(void) {
-//
-//    // V1
-//    ////_delay_us(4);
-//    //// Set ack low
-//    //PORTB &= ~_BV(PORTB3);
-//    //_delay_us(3);
-//    //// Set ack high
-//    //PORTB |= _BV(PORTB3);
-//
-//    // V2 en cours de test
-//    //_delay_us(4);
-//    
-//    // Set Ack output
-//    DDRB |= _BV(PORTB3);       // DIR as output
-//    // Set ack low
-//    PORTB &= ~_BV(PORTB3);
-//    
-//    _delay_us(3);
-//    
-//    //// Set ack high
-//    //PORTB |= _BV(PORTB3);
-//    
-//    //_delay_us(5);
-//    
-//    // Set Ack Hi-Z
-//    DDRB &= ~_BV(PORTB3);       // DIR as input
-//    PORTB &= ~_BV(PORTB3);      // PORT tri state (Hi-Z)
-//}
-
-//uint8_t SPI_SlaveReceive(uint8_t data) {
-//    SPDR = data;
-//    while(!(SPSR & (1<<SPIF)));
-//    return SPDR;
-//}
-
-//#define DATA_LEN    5
-//volatile uint8_t data_buff[DATA_LEN]={0x41,0x5A,0xFF,0xFF,0xFF};//Reply.
-//volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00};
 
 #define MAX_SAMPLES     400
 volatile uint8_t sampled_seq[MAX_SAMPLES];
 volatile uint8_t sent_seq[MAX_SAMPLES];
-volatile uint8_t seq_num[MAX_SAMPLES];
-volatile uint8_t current_seq_num=0;
 volatile uint16_t sample_num=0;
-
-//volatile uint8_t curr_byte = 0;
-//volatile uint8_t isok = 0;
-
-const char *bit_rep[16] = {
-    [ 0] = "0000", [ 1] = "0001", [ 2] = "0010", [ 3] = "0011",
-    [ 4] = "0100", [ 5] = "0101", [ 6] = "0110", [ 7] = "0111",
-    [ 8] = "1000", [ 9] = "1001", [10] = "1010", [11] = "1011",
-    [12] = "1100", [13] = "1101", [14] = "1110", [15] = "1111",
-};
-
-
 
 // Premiers signes encourageant !!
 // - Le timing est TRES serré
@@ -432,156 +318,110 @@ uint8_t read_byte(uint8_t data) {
 
     // Read SPI value
     uint8_t value = 0x00;
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+
     if (bit_is_set(data, 0)) {
         SPI_DDR  &= ~_BV(MISO);      // DIR as input
     } else {
         SPI_DDR  |=  _BV(MISO);      // Set ACK to low
     }
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
     if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(SPI_PIN, MOSI)) {
         value |= _BV(0);
     }
 
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(data, 1)) {
         SPI_DDR  &= ~_BV(MISO);      // DIR as input
     } else {
         SPI_DDR  |=  _BV(MISO);      // Set ACK to low
     }
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
     if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(SPI_PIN, MOSI)) {
         value |= _BV(1);
     }
 
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(data, 2)) {
         SPI_DDR  &= ~_BV(MISO);      // DIR as input
     } else {
         SPI_DDR  |=  _BV(MISO);      // Set ACK to low
     }
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
     if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(SPI_PIN, MOSI)) {
         value |= _BV(2);
     }
 
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(data, 3)) {
         SPI_DDR  &= ~_BV(MISO);      // DIR as input
     } else {
         SPI_DDR  |=  _BV(MISO);      // Set ACK to low
     }
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
     if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(SPI_PIN, MOSI)) {
         value |= _BV(3);
     }
 
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(data, 4)) {
         SPI_DDR  &= ~_BV(MISO);      // DIR as input
     } else {
         SPI_DDR  |=  _BV(MISO);      // Set ACK to low
     }
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
     if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(SPI_PIN, MOSI)) {
         value |= _BV(4);
     }
 
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(data, 5)) {
         SPI_DDR  &= ~_BV(MISO);      // DIR as input
     } else {
         SPI_DDR  |=  _BV(MISO);      // Set ACK to low
     }
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
     if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(SPI_PIN, MOSI)) {
         value |= _BV(5);
     }
 
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(data, 6)) {
         SPI_DDR  &= ~_BV(MISO);      // DIR as input
     } else {
         SPI_DDR  |=  _BV(MISO);      // Set ACK to low
     }
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
     if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(SPI_PIN, MOSI)) {
         value |= _BV(6);
     }
 
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(data, 7)) {
         SPI_DDR  &= ~_BV(MISO);      // DIR as input
     } else {
         SPI_DDR  |=  _BV(MISO);      // Set ACK to low
     }
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
     do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
     if (bit_is_set(SPI_PIN, SS)) return 0x00;
     if (bit_is_set(SPI_PIN, MOSI)) {
         value |= _BV(7);
     }
-
-    //for (uint8_t i = 0; i < 8; i++)
-    //{
-    //    // Wait for clock low
-    //    //loop_until_bit_is_clear(SPI_PIN, SCK);
-    //    //do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    //    //if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    //    do { } while (bit_is_set(SPI_PIN, SCK));
-    //
-    //    // Prépare sending data (LSB first)
-    //    //if ((data & 0b00000001) > 0) {
-    //    //if ((data & _BV(i)) == 0) {
-    //    if (bit_is_set(data, i)) {
-    //        // Set MISO Hi-Z
-    //        //SPI_PORT &= ~_BV(MISO);      // PORT tri state (Hi-Z)
-    //        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    //    } else {
-    //        // Set data low
-    //        //SPI_PORT &= ~_BV(MISO);      // Keep port bit clear
-    //        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    //    }
-    //    //data >>= 1;
-    //
-    //    //if (data & (uint8_t)_BV(i)) {
-    //    //    SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    //    //} else {
-    //    //    SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    //    //}
-    //
-    //    // We read on clock Hi
-    //    //loop_until_bit_is_set(SPI_PIN, SCK);
-    //    //do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    //    //if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    //    do { } while (bit_is_clear(SPI_PIN, SCK));
-    //
-    //    // Read data (LSB first)
-    //    if (bit_is_set(SPI_PIN, MOSI)) {
-    //        value |= _BV(i);
-    //    }
-    //
-    //    //value <<= 1;
-    //    //if (bit_is_set(SPI_PIN, MOSI)) {
-    //    //    value |= 0x01;
-    //    //} else {
-    //    //    value |= 0x00;
-    //    //}
-    //}
 
     return value;
 }
@@ -611,6 +451,8 @@ void try_hard(void) {
         char value3 = 0xFF;
         char value4 = 0xFF;
         char value5 = 0xFF;
+
+        // NOTES : https://gist.github.com/scanlime/5042071
 
         value1 = read_byte(0xFF);
         sent_seq[sample_num] = 0xFF;
@@ -647,14 +489,12 @@ void try_hard(void) {
         }
 
         // Set MISO Hi-Z
-        //SPI_PORT &= ~_BV(MISO);      // PORT tri state (Hi-Z)
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        SPI_DDR  &= ~_BV(MISO);
 
         // Wait end of _SS_
         loop_until_bit_is_set(SPI_PIN, SS);
 
-        //printf("Val : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n", value1, value2, value3, value4, value5);
-
+        // We have aproximately 19 ms for doing what we want
 
         printf("TX  -> ");
         for (uint8_t i = 0; i < sample_num; i++) {
@@ -706,7 +546,7 @@ int main(void) {
 
             if (usbInterruptIsReady())
             {
-                usbSetInterrupt(&currentReport, sizeof(currentReport));
+                usbSetInterrupt((uchar *)&currentReport, sizeof(currentReport));
 
                 while (!usbInterruptIsReady())
                 {
@@ -720,500 +560,7 @@ int main(void) {
 
     disable_watchdog();
 
-
-
     try_hard();
-
-
-
-
-
-    power_spi_enable();
-
-
-    uint8_t final_data[18];            // array stores final formatted data that is sent to ps2
-    uint8_t command[6];            // array stores commands sent from ps2 in order they are received
-    uint8_t CSR0 = 0x00;            // command status register 0
-    uint8_t reader = 0x00;
-
-    final_data[0] = 0xFF;            // Initialise data variables with neutral values
-    final_data[1] = 0xFF;
-    final_data[2] = 0x80;
-    final_data[3] = 0x80;
-    final_data[4] = 0x80;
-    final_data[5] = 0x80;
-    command[0] = 0x00;
-    command[1] = 0x00;
-    command[2] = 0x00;
-    command[3] = 0x00;
-    command[4] = 0x00;
-
-
-    //while(1) {
-    //    printf("PINA %s%s - PINC %s%s\n",
-    //        bit_rep[PINA >> 4], bit_rep[PINA & 0x0F],
-    //        bit_rep[PINC >> 4], bit_rep[PINC & 0x0F]);
-    //    _delay_us(50);
-    //}
-
-    uint16_t total = 0;
-    uint8_t first_call = 10;
-
-    /* Infinite while loop*/
-    while(1)
-    {
-        total++;
-    
-
-        // DEBUG
-        //if (sample_num > 250) {
-        //    for (uint16_t t = 0; t < sample_num; t++) {
-        //        printf("%03d: Tx 0x%02X -> Rx 0x%02X (%02d)\n", t, sent_seq[t], sampled_seq[t], seq_num[t]);
-        //    }
-        //    sample_num = 0;
-        //}
-
-        //printf("TX  -> ");
-        //for (uint8_t i = 0; i < sample_num; i++) {
-        //    printf("0x%02X ", sampled_seq[i]);
-        //}
-        //if (sample_num < 4) {
-        //    printf("(fail)");
-        //}
-        //printf("\n");
-        //
-        //printf("  RX > ");
-        //for (uint8_t i = 0; i < sample_num; i++) {
-        //    printf("0x%02X ", sent_seq[i]);
-        //}
-        //printf("\n\n");
-        //
-        //sample_num = 0;
-        //
-        //if (total > 400) {
-        //    while(1) {
-        //
-        //    }
-        //}
-
-
-
-        loop_until_bit_is_clear(SPI_PIN, SS);
-
-        reader = SPSR;                  // Read SPI status register to clear SPIF flag
-        SPDR = 0xFF;                    // Write SPI data register with initial dummy byte
-        sent_seq[sample_num] = 0xFF;
-        current_seq_num = 0;
-        seq_num[sample_num] = current_seq_num;
-
-        loop_until_bit_is_set(SPSR, SPIF);
-        command[0] = SPDR;
-        sampled_seq[sample_num++] = command[0]; // DEBUG
-
-        if (command[0] == 0x01 && bit_is_clear(SPI_PIN, SS)) {
-            ACKNOWLEDGE;
-            //if (first_call == 0) {
-                PS_AVR_COMM(0x41, command[1]);      // Digital mode
-            //} else {
-            //    PS_AVR_COMM(0x73, command[1]);      // Dual shock Analogic mode (SCPH-10010)
-            //}
-
-        //    //PS_AVR_COMM(0x41, command[1]);      // Digital mode
-        //    //PS_AVR_COMM(0x43, command[1]);      // Digital PS2 mode
-        //    //PS_AVR_COMM(0x73, command[1]);      // Dual shock Analogic mode
-        //    PS_AVR_COMM(0x79, command[1]);      // Dual shock Full analogic mode
-        //    //PS_AVR_COMM(0xF3, command[1]);      // Config mode
-//
-            if (command[1] == 0x42 && bit_is_clear(SPI_PIN, SS)) {
-                ACKNOWLEDGE;
-                PS_AVR_COMM(0x5A, command[2]);        // filler byte, always 0x5A
-
-                if (command[2] == 0x00 && bit_is_clear(SPI_PIN, SS)) {
-                    ACKNOWLEDGE;
-
-                    final_data[0] = PINA;  // On a que des pull-up
-
-                    PS_AVR_COMM(final_data[0], command[3]);    // first data byte (8 buttons)
-
-                    // NOTE :
-                    // command[3] & command[4] : Donne la valeur des moteurs
-                    // après les autre command[x] sont à 0x00
-                    if (bit_is_clear(SPI_PIN, SS)) {
-                        ACKNOWLEDGE;
-                        final_data[1] = PINC;  // On a que des pull-up
-                        PS_AVR_COMM(final_data[1], command[4]);    // second data byte (8 buttons)
-
-                        //if (first_call == 0) {
-                        //    first_call = 1;
-                        //    goto fin;
-                        //}
-
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x80, command[4]);    // right_analog_x
-                        //// No check, it's rumble value ! if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x80, command[4]);    // right_analog_y
-                        //// No check, it's rumble value ! if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x80, command[4]);    // left_analog_x
-                        //// No check, it's rumble value ! if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x80, command[4]);    // left_analog_y
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                        //if (command[4] != 0x00) goto fin;
-                        //ACKNOWLEDGE;
-                        //PS_AVR_COMM(0x00, command[4]);    // 
-                    }
-                }
-
-            //} else if (command[1] == 0x45 && bit_is_clear(SPI_PIN, SS)) {
-            //    ACKNOWLEDGE;
-            //    PS_AVR_COMM(0x5A, command[2]);        // filler byte, always 0x5A
-//
-            //    if (command[2] == 0x00 && bit_is_clear(SPI_PIN, SS)) {
-            //        ACKNOWLEDGE;
-//
-            //        final_data[0] = 0x03;   // Dual Shock
-//
-            //        PS_AVR_COMM(final_data[0], command[3]);    // Pad type
-            //        if (command[3] != 0x5A) goto fin;
-            //        ACKNOWLEDGE;
-            //        PS_AVR_COMM(0x02, command[3]);    // Constante
-            //        if (command[3] != 0x5A) goto fin;
-            //        ACKNOWLEDGE;
-            //        PS_AVR_COMM(0x00, command[3]);    // LED Off
-            //        if (command[3] != 0x5A) goto fin;
-            //        ACKNOWLEDGE;
-            //        PS_AVR_COMM(0x02, command[3]);    // Constante
-            //        if (command[3] != 0x5A) goto fin;
-            //        ACKNOWLEDGE;
-            //        PS_AVR_COMM(0x01, command[3]);    // Constante
-            //        if (command[3] != 0x5A) goto fin;
-            //        ACKNOWLEDGE;
-            //        PS_AVR_COMM(0x00, command[3]);    // Constante
-            //    }
-
-            }
-
-        } else {
-            // Globalemennt inutile sur PS2 car il y a 4 lilgnes SPI dédiées
-            printf("Disable SPI: 0x%02X\n", command[0]);
-            DISABLE_SPI;    // Disable SPI hardware to avoid conflict with mem-card comm
-        }
-
-fin:
-
-        loop_until_bit_is_set(SPI_PIN, SS);   // Wait for end of communication
-        ENABLE_SPI;
-
-        
-/*PS-AVR SPI SECTION*******************************************************************************************/
-
-//        if (~SPI_PIN & _BV(SS)) {    // If attention line (SS/PB2) is brought low, enter transmission mode
-//            
-//            reader = SPSR;        // Read SPI status register to clear SPIF flag
-//            SPDR = (uint8_t)~0xFF;        // Write SPI data register with initial dummy byte
-//            sent_seq[sample_num] = 0xFF;
-//            //START_TIMER_AT(1);    // setup 1ms timer
-//
-//            // loop while timer counts up, SS remains low, and SPI transmission flag not set
-//            while((!(TIFR2 & _BV(TOV2))) && (~SPI_PIN & _BV(SS)) && (!(SPSR & _BV(SPIF))));
-//
-//            // If these two remain true it means SPI hardware has received a byte and communication continues
-//            if((!(TIFR2 & _BV(TOV2))) && (~SPI_PIN &_BV(SS))){
-//
-//                command[0] = SPDR;    // Read first command byte from SPI buffer
-//                sampled_seq[sample_num++] = command[0];
-//
-//            if (command[0] == 0x01) {    // If PS is not addressing controller, abandon communication
-//
-//                    ACKNOWLEDGE;    // ACK pulse sent following every byte except final byte
-//                                
-//            if((CSR0 & _BV(ANALOG_MODE_BIT)) && (!(CSR0 & _BV(CONFIG_MODE_BIT)))){ // if analog mode is active and config mode is inactive...
-//                    PS_AVR_COMM(0x73, command[1]);}        // ...send 0x73, analog mode ID
-//            else if((!(CSR0 & _BV(ANALOG_MODE_BIT))) && (!(CSR0 & _BV(CONFIG_MODE_BIT)))){ // if neither config mode nor analog mode active...
-//                    PS_AVR_COMM(0x41, command[1]);
-//            }        // ...send 0x41, digital mode ID
-//            else if(CSR0 & _BV(CONFIG_MODE_BIT)){            // if config mode is active...
-//                    PS_AVR_COMM(0xF3, command[1]);}        // ...send 0xF3, config mode ID
-//
-//        // tests for known commands which the adapter will reply to, commands not listed will terminate communication for the current packet
-//        // 0x42 = main polling command used to get control data from adapter
-//        // 0x43 = enter/exit config mode command
-//        // 0x44 = switch between analog/digital modes and lock/unlock controller in specified mode
-//        // 0x45 = command to retrieve status/ID info from adapter
-//        // 0x46 = command to retrieve 10 bytes of mystery data from adapter over two packets
-//        // 0x47 = command to retrieve 5 bytes of mystery data from adapter
-//        // 0x4C = command to retrieve 10 bytes of mystery data from adapter over two packets
-//        // 0x4D = maps rumble motor commands to command bytes 3 and 4 in 0x42 polling packet
-//        if (   (command[1] == 0x42)
-//            || (command[1] == 0x43)
-//            || (command[1] == 0x44)
-//            || (command[1] == 0x45)
-//            || (command[1] == 0x46)
-//            || (command[1] == 0x47)
-//            || (command[1] == 0x4C)
-//            || (command[1] == 0x4D)
-//            ) {
-//
-//                        ACKNOWLEDGE;
-//
-//                    PS_AVR_COMM(0x5A, command[2]);        // filler byte, always 0x5A
-//
-//            if((CSR0 & _BV(CONFIG_MODE_BIT)) && (command[1] == 0x45)){    // if adapter is in config mode and 0x45 command is received
-//                final_data[0] = 0x01;        // meaning of these bytes is unknown, copied from analysis of a real Ps1 controller response
-//                final_data[1] = 0x02;
-//                (CSR0 & _BV(ANALOG_MODE_BIT)) ? (final_data[2] = 0x01) : (final_data[2] = 0x00); // 1 if in analog mode, otherwise 0
-//                final_data[3] = 0x02;
-//                final_data[4] = 0x01;
-//                final_data[5] = 0x00;
-//                }
-//
-//            // sets up first two data bytes for a 0x4D command, these bytes report the current rumble motor mapping 
-//            if((CSR0 & _BV(CONFIG_MODE_BIT)) && (command[1] == 0x4D)){
-//                if(CSR0 & _BV(FIRST_MOTOR_BYTE_SMALL))
-//                    final_data[0] = 0x00;
-//                else if(CSR0 & _BV(FIRST_MOTOR_BYTE_LARGE))
-//                    final_data[0] = 0x01;
-//                else
-//                    final_data[0] = 0xFF;
-//
-//                if(CSR0 & _BV(SECOND_MOTOR_BYTE_SMALL))
-//                    final_data[1] = 0x00;
-//                else if(CSR0 & _BV(SECOND_MOTOR_BYTE_LARGE))
-//                    final_data[1] = 0x01;
-//                else
-//                    final_data[1] = 0xFF;
-//                }
-//
-//            // ps1 will reject data in the 0x46, 0x47, and 0x4C packets if final_data[0] is not 0x00 
-//            if((CSR0 & _BV(CONFIG_MODE_BIT)) && ((command[1] == 0x46) || (command[1] == 0x47) || (command[1] == 0x4C))){
-//                    final_data[0] = 0x00;
-//                }
-//
-//                        ACKNOWLEDGE;
-//
-//        // TODO : I y a du mieux, mais c'est pas ça...
-//        uint8_t pb1_value = ~PIND & _BV(PD2);
-//        if (pb1_value > 0) {
-//            final_data[0] &= ~(_BV(PS_UP));
-//            //final_data[1] = ~(_BV(4));
-//            PORTD &= ~_BV(PORTD7);
-//        } else {
-//            final_data[0] = 0xFF;
-//            //final_data[1] = 0xFF;
-//            PORTD |= _BV(PORTD7);
-//        }
-//
-//                    PS_AVR_COMM(final_data[0], command[3]);    // first data byte (8 buttons)
-//
-//            if(command[1] == 0x43){
-//                // command[3] tells the adapter to enter or exit config mode when command[1] is 0x43
-//                (command[3] == 0x00) ? (CSR0 &= ~_BV(CONFIG_MODE_BIT)) : (CSR0 |= _BV(CONFIG_MODE_BIT));
-//                }
-//
-//            if((CSR0 & _BV(CONFIG_MODE_BIT)) && (command[1] == 0x46)){
-//                if(command[3] == 0x00){
-//                    final_data[1] = 0x00;    // meaning of these bytes is unknown, copied from analysis of a real Ps1 controller response
-//                    final_data[2] = 0x01;
-//                    final_data[3] = 0x02;
-//                    final_data[4] = 0x00;
-//                    final_data[5] = 0x0A;
-//                    }
-//                else if(command[3] == 0x01){
-//                    final_data[1] = 0x00;
-//                    final_data[2] = 0x01;
-//                    final_data[3] = 0x01;
-//                    final_data[4] = 0x01;
-//                    final_data[5] = 0x14;
-//                    }
-//                }
-//
-//            if((CSR0 & _BV(CONFIG_MODE_BIT)) && (command[1] == 0x47)){
-//                final_data[1] = 0x00;    // meaning of these bytes is unknown, copied from analysis of a real Ps1 controller response
-//                final_data[2] = 0x02;
-//                final_data[3] = 0x00;
-//                final_data[4] = 0x01;
-//                final_data[5] = 0x00;
-//                }
-//
-//            if((CSR0 & _BV(CONFIG_MODE_BIT)) && (command[1] == 0x4C)){
-//                if(command[3] == 0x00){
-//                    final_data[1] = 0x00;    // meaning of these bytes is unknown, copied from analysis of a real Ps1 controller response
-//                    final_data[2] = 0x00;
-//                    final_data[3] = 0x04;
-//                    final_data[4] = 0x00;
-//                    final_data[5] = 0x00;
-//                    }
-//                else if(command[3] == 0x01){
-//                    final_data[1] = 0x00;
-//                    final_data[2] = 0x00;
-//                    final_data[3] = 0x07;
-//                    final_data[4] = 0x00;
-//                    final_data[5] = 0x00;
-//                    }
-//                }
-//
-//                        ACKNOWLEDGE;
-//
-//                    PS_AVR_COMM(final_data[1], command[4]);    // second data byte (8 buttons)
-//
-//            if((CSR0 & _BV(CONFIG_MODE_BIT)) && (command[1] == 0x44)){
-//                // command[3] turns analog mode on or off, command[4] locks controller in specified mode
-//                (command[3] == 0x00) ? (CSR0 &= ~_BV(ANALOG_MODE_BIT)) : (CSR0 |= _BV(ANALOG_MODE_BIT));
-//                (command[4] == 0x03) ? (CSR0 |= _BV(LOCK_BIT)) : (CSR0 &= ~_BV(LOCK_BIT));
-//                }
-//
-//            if((CSR0 & _BV(CONFIG_MODE_BIT)) && (command[1] == 0x4D)){
-//                if(command[3] == 0){
-//                    CSR0 |= _BV(FIRST_MOTOR_BYTE_SMALL);
-//                    CSR0 &= ~_BV(FIRST_MOTOR_BYTE_LARGE);}
-//                else if(command[3] == 1){
-//                    CSR0 |= _BV(FIRST_MOTOR_BYTE_LARGE);
-//                    CSR0 &= ~_BV(FIRST_MOTOR_BYTE_SMALL);}
-//                else{
-//                    CSR0 &= ~_BV(FIRST_MOTOR_BYTE_SMALL);
-//                    CSR0 &= ~_BV(FIRST_MOTOR_BYTE_LARGE);}
-//
-//                if(command[4] == 0){
-//                    CSR0 |= _BV(SECOND_MOTOR_BYTE_SMALL);
-//                    CSR0 &= ~_BV(SECOND_MOTOR_BYTE_LARGE);}
-//                else if(command[4] == 1){
-//                    CSR0 |= _BV(SECOND_MOTOR_BYTE_LARGE);
-//                    CSR0 &= ~_BV(SECOND_MOTOR_BYTE_SMALL);}
-//                else{
-//                    CSR0 &= ~_BV(SECOND_MOTOR_BYTE_SMALL);
-//                    CSR0 &= ~_BV(SECOND_MOTOR_BYTE_LARGE);}
-//                }
-//                    
-//            //START_TIMER_AT(253);
-//            // loop while timer counts up, and SS remains low, timeout skips ACK and remaining bytes if Ps cuts off communication early
-//            while((!(TIFR2 & _BV(TOV2))) && (~SPI_PIN & _BV(SS)));
-//            // continue with transmission of the final 4 bytes if adapter is in analog mode, config mode, or if command[1] is 0x43
-//            if(((CSR0 & _BV(ANALOG_MODE_BIT)) || (CSR0 & _BV(CONFIG_MODE_BIT)) || (command[1] == 0x43)) && (~SPI_PIN & _BV(SS))){
-//
-//                        ACKNOWLEDGE;
-//
-//                    PS_AVR_COMM(final_data[2], command[5]);    // Right analog X data Byte
-//                        
-//                        ACKNOWLEDGE;
-//
-//                    PS_AVR_COMM(final_data[3], command[5]);    // Right analog Y data byte
-//
-//                        ACKNOWLEDGE;
-//
-//                    PS_AVR_COMM(final_data[4], command[5]);    // Left analog X data byte
-//
-//                        ACKNOWLEDGE;
-//
-//                    PS_AVR_COMM(final_data[5], command[5]);    // Left analog Y data byte
-//
-//            }// if analog mode or config mode
-//
-//            }// if command[1] == one of the recognised commands
-//
-//            }// 0x01 controller address check
-//
-//            else {
-//                SPI_PORT &= ~_BV(MISO);    // Clear data output
-//                DISABLE_SPI;                // Disable SPI hardware to avoid conflict with mem-card comm
-//            }
-//
-//            }// timer overflow and SS line check
-//
-//            }// if SS is low
-//            
-//        SPI_PORT &= ~_BV(MISO);        // Clear data output
-//
-//        while (~SPI_PIN & _BV(SS));    // Loop until SS returns high after communication is complete
-//
-//
-///*CONTROLLER POLLING SECTION*****************************************************************************************/
-//
-//    ENABLE_SPI;                    // re-enable SPI hardware
-//    //START_TIMER_AT(64);
-//
-////    while((!(TIFR2 & _BV(TOV2))) && (SPI_PIN & _BV(SS)));    // Loop while timer counts up and SS pin remains high
-////
-////    if(SPI_PIN & _BV(SS)){                // if SS line is high, SPI communication is not being requested
-////
-////    final_data[0] = 0xFF;                    // Clear data bytes before controller polling
-////    final_data[1] = 0xFF;
-////    final_data[2] = 0x80;
-////    final_data[3] = 0x80;
-////    final_data[4] = 0x80;
-////    final_data[5] = 0x80;
-////
-////
-/////*DATA FORMATTING SECTION********************************************************************************************/
-////
-/////*END DATA FORMATTING************************************************************************************************/
-////
-////
-////    //if(command[1] == 0x42){        // command 0x42 is the main polling command sent continually once the adapter is configured
-////    //        LED_PORT |= _BV(STATUS_LED_RED2);        // Red status LED off
-////    //        LED_PORT &= ~_BV(STATUS_LED_GREEN2);        // Green status LED on to indicate that everything is cool
-//////
-////    //        LED_PORT |= _BV(STATUS_LED_GREEN2);    // FOR DEBUGGING
-////    //        _delay_us(4);                // FOR DEBUGGING
-////    //        LED_PORT &= ~_BV(STATUS_LED_GREEN2);    // FOR DEBUGGING
-////    //}
-////    //else{
-////    //        LED_PORT |= _BV(STATUS_LED_GREEN2);        // Green status LED off
-////    //        LED_PORT &= ~_BV(STATUS_LED_RED2);        // Red status LED on to indicate that something might be wrong
-//////
-////    //        LED_PORT |= _BV(STATUS_LED_RED2);    // FOR DEBUGGING
-////    //        _delay_us(4);                // FOR DEBUGGING
-////    //        LED_PORT &= ~_BV(STATUS_LED_RED2);    // FOR DEBUGGING
-////    //}
-////
-////    command[1] = 0x00;
-////    command[3] = 0x00;
-////    command[4] = 0x00;
-////
-////    }// if SS line is still high after timeout
-////
-//    COMM_IS_OK;        // set flag in "CSR0" to allow SPI communication
-////
-////    // loop waits for call from spi master, if not called in 20ms loop to top to keep everything else going
-////    for(uint8_t x = 0; ((x < 18) && (SPI_PIN & _BV(SS))); x++){
-////        //START_TIMER_AT(1);
-////        while((!(TIFR2 & _BV(TOV2))) && (SPI_PIN & _BV(SS)));
-////        }
-        
-    }// infinite while(1) loop
 
     return 0;
 }
@@ -1222,34 +569,3 @@ fin:
  * Interruptions
  ******************************************************************************/
 
-//ISR(INT0_vect) {
-//
-//}
-
-//ISR(SPI_STC_vect) {
-//    uint8_t readed = SPDR;
-//
-//    if (sample_num < MAX_SAMPLES)
-//        sampled_seq[sample_num] = readed;   //DEBUG!
-//
-//    if (readed == command_buff[curr_byte]) {		
-//		SPDR = ~data_buff[curr_byte];
-//
-//        if (sample_num < MAX_SAMPLES)
-//            sent_seq[sample_num] = data_buff[curr_byte];    //DEBUG!
-//
-//		curr_byte++;
-//
-//		if (curr_byte < DATA_LEN) {
-//            ack();
-//		} else {
-//			SPDR = ~0xFF;
-//			curr_byte=0;
-//		}
-//	} else {
-//		SPDR = ~0xFF;
-//		curr_byte=0;
-//	}
-//
-//    sample_num++;   //DEBUG!
-//}

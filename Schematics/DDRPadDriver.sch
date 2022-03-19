@@ -650,23 +650,8 @@ Wire Wire Line
 	7250 2950 6950 2950
 Text Label 3350 6950 2    50   ~ 0
 MISO
-$Comp
-L Device:R R?
-U 1 1 6248FF83
-P 3700 6950
-F 0 "R?" V 3650 7100 50  0000 L CNN
-F 1 "10K" V 3700 6900 50  0000 L CNN
-F 2 "" V 3630 6950 50  0001 C CNN
-F 3 "~" H 3700 6950 50  0001 C CNN
-	1    3700 6950
-	0    1    1    0   
-$EndComp
 Text Label 4050 6950 0    50   ~ 0
 PS2_MISO
-Wire Wire Line
-	3350 6950 3550 6950
-Wire Wire Line
-	3850 6950 4050 6950
 Wire Wire Line
 	6950 3050 7250 3050
 $Comp
@@ -843,8 +828,8 @@ Text Notes 5800 750  0    50   ~ 0
 Ordre PORTA et PORTC choisi\npour être conforme à l’attendu par la PS2
 Text Notes 1050 4400 0    50   ~ 0
 TODO : tester DMG2305
-Text Notes 3150 7250 0    50   ~ 0
-TODO : Les 10K c’est pas bon…\nIl faut les enlever je pense
-Text Notes 7050 1250 0    50   ~ 0
-TODO : (Pour SCK/MOSI/MISO dédiée à la PS2)\n- Déplacer D- et D+ sur PD6 et PD7\n- Déplacer PB2 sur PD5\n- Supprimer la led témoin
+Text Notes 3050 7400 0    50   ~ 0
+La ligne PS2_MISO étant en collecteur\nouvert, il ne lui faut pas de 10K.\nLa 10K sur la ligne MOSI permet de donner\npriorité à l’ISP.
+Wire Wire Line
+	3350 6950 4050 6950
 $EndSCHEMATC

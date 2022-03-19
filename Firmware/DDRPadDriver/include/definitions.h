@@ -25,8 +25,6 @@
 #define SPI_PORT		PORTB
 #define SPI_PIN			PINB
 #define SPI_DDR			DDRB
-#define ENABLE_SPI      SPCR |= _BV(SPE)
-#define DISABLE_SPI     SPCR &= ~_BV(SPE)
 
 /* command status register defines */
 // command status register 0 "CSR0"
