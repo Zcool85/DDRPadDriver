@@ -57,13 +57,13 @@ uchar usbFunctionDescriptor(struct usbRequest *rq)
 		switch (rq->wValue.bytes[1])
 		{
 			case USBDESCR_DEVICE:
-				usbMsgPtr = hid_device_descriptor;
+				usbMsgPtr = (usbMsgPtr_t)&hid_device_descriptor[0];
 				return sizeof(hid_device_descriptor);
 			case USBDESCR_HID_REPORT:
-				usbMsgPtr = hid_report_descriptor;
+				usbMsgPtr = (usbMsgPtr_t)&hid_report_descriptor[0];
 				return sizeof(hid_report_descriptor);
 			case USBDESCR_CONFIG:
-				usbMsgPtr = hid_configuration_descriptor;
+				usbMsgPtr = (usbMsgPtr_t)&hid_configuration_descriptor[0];
 				return sizeof(hid_configuration_descriptor);
 		}
 	}

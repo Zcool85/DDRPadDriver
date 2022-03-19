@@ -101,8 +101,8 @@ echo -n -e '\xF7' > lfuse.bin
 // HC595
 #include "hc595.h"
 
-// PlayStation 2 headers
-#include "definitions.h"
+// PlayStation headers
+#include "PSX.h"
 
 // USB Headers
 #include "usbdrv.h"
@@ -149,6 +149,18 @@ static void updateHIDReport(HIDReport *report);
  *              La correspondance se fait en fonction d'un tapis pour PS2
  */
 static void updateLEDs(void);
+
+/**
+ * @brief       Boucle de gestion du mode USB
+ * @details     Cette fonction permet de gérer le PAD en mode USB
+ */
+static void usb_mode(void);
+
+/**
+ * @brief       Boucle de gestion du mode Playstation
+ * @details     Cette fonction permet de gérer le PAD en mode Playstation
+ */
+static void playstation_mode(void);
 
 /**
  * @brief       Point d'entrée principal du programme
@@ -294,140 +306,15 @@ static void global_init(void) {
     sei();
 }
 
-void ack(void) {
-    _delay_us(4);
-    // Set ack low
-    SPI_DDR  |=  _BV(ACK);
-    _delay_us(2);
-    // Set ack Hi-Z
-    SPI_DDR  &= ~_BV(ACK);
-}
-
 #define MAX_SAMPLES     400
 volatile uint8_t sampled_seq[MAX_SAMPLES];
 volatile uint8_t sent_seq[MAX_SAMPLES];
 volatile uint16_t sample_num=0;
 
-// Premiers signes encourageant !!
-// - Le timing est TRES serré
-// - L'optimiseur GCC ne permet pas de rester dans le timing
-// - Solution crade : NE PAS FAIRE DE BOUCLE
-// - A voir un jour : Faire cette partie en assembleur ?? :-/
+static void playstation_mode() {
+    printf("Playstation Mode (3.3V)\n");
 
-uint8_t read_byte(uint8_t data) {
-
-    // Read SPI value
-    uint8_t value = 0x00;
-
-    if (bit_is_set(data, 0)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
-        value |= _BV(0);
-    }
-
-    if (bit_is_set(data, 1)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
-        value |= _BV(1);
-    }
-
-    if (bit_is_set(data, 2)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
-        value |= _BV(2);
-    }
-
-    if (bit_is_set(data, 3)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
-        value |= _BV(3);
-    }
-
-    if (bit_is_set(data, 4)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
-        value |= _BV(4);
-    }
-
-    if (bit_is_set(data, 5)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
-        value |= _BV(5);
-    }
-
-    if (bit_is_set(data, 6)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
-        value |= _BV(6);
-    }
-
-    if (bit_is_set(data, 7)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
-    }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
-        value |= _BV(7);
-    }
-
-    return value;
-}
-
-
-void try_hard(void) {
+    disable_watchdog();
 
     // NOTES :
     // La console interroge la manette toutes les 20ms.
@@ -438,6 +325,7 @@ void try_hard(void) {
     // si _SS_ high, alors la communication est terminée
 
     // TODO : Mettre un timer pour la sécurrité. Si timeout : Fin de la com
+    // TODO : Mettre un watchdog
 
 
     while(1) {
@@ -445,44 +333,49 @@ void try_hard(void) {
         // Wait for _SS_
         loop_until_bit_is_clear(SPI_PIN, SS);
 
-        // Read SPI value
-        char value1 = 0xFF;
-        char value2 = 0xFF;
-        char value3 = 0xFF;
-        char value4 = 0xFF;
-        char value5 = 0xFF;
+        // NOTES :
+        // - Inspiration : https://gist.github.com/scanlime/5042071
+        // - Pour DDR, nous n'avons pas besoin de coder tout le protocol
+        //   d'un dualshock 2.
+        // - Jeux testés :
+        //     + DDR Supernova (JAP)
+        //     + DDR Supernova 2 (US)
+        //     + DDR MAX 2 7ème mix (JAP)
+        //     + DDR MAX 6ème mix (JAP)
+        //     + DDR MAX (US)
+        //     + DDR MAX 2 (US)
+        //     + DDR Extreme 2 (US)
+        //     + DDR X (FR)
 
-        // NOTES : https://gist.github.com/scanlime/5042071
-
-        value1 = read_byte(0xFF);
+        uint8_t value = PSX_read_byte(0xFF);
         sent_seq[sample_num] = 0xFF;
-        sampled_seq[sample_num++] = value1;
+        sampled_seq[sample_num++] = value;
 
-        if (value1 == 0x01 && bit_is_clear(SPI_PIN, SS)) {
+        if (value == 0x01 && bit_is_clear(SPI_PIN, SS)) {
         
-            ack();
-            value2 = read_byte(0x41);
+            PSX_ack();
+            value = PSX_read_byte(0x41);
             sent_seq[sample_num] = 0x41;
-            sampled_seq[sample_num++] = value2;
+            sampled_seq[sample_num++] = value;
 
-            if (value2 == 0x42 && bit_is_clear(SPI_PIN, SS)) {
-                ack();
+            if (value == 0x42 && bit_is_clear(SPI_PIN, SS)) {
+                PSX_ack();
                 
-                value3 = read_byte(0x5A);
+                value = PSX_read_byte(0x5A);
                 sent_seq[sample_num] = 0x5A;
-                sampled_seq[sample_num++] = value3;
+                sampled_seq[sample_num++] = value;
                 if (bit_is_clear(SPI_PIN, SS)) {
-                    ack();
+                    PSX_ack();
                     
-                    value4 = read_byte(PINA);
+                    value = PSX_read_byte(PINA);
                     sent_seq[sample_num] = PINA;
-                    sampled_seq[sample_num++] = value4;
+                    sampled_seq[sample_num++] = value;
                     if (bit_is_clear(SPI_PIN, SS)) {
-                        ack();
+                        PSX_ack();
                         
-                        value5 = read_byte(PINC);
+                        value = PSX_read_byte(PINC);
                         sent_seq[sample_num] = PINC;
-                        sampled_seq[sample_num++] = value5;
+                        sampled_seq[sample_num++] = value;
                     }
                 }
             }
@@ -494,8 +387,14 @@ void try_hard(void) {
         // Wait end of _SS_
         loop_until_bit_is_set(SPI_PIN, SS);
 
-        // We have aproximately 19 ms for doing what we want
+        //
+        // On a approximativement 19ms pour faire ce que l'on veut ici
+        //
 
+        // On met à jour les LED
+        updateLEDs();
+
+        // DEBUG : A voir si l'on garde ce bout de code...
         printf("TX  -> ");
         for (uint8_t i = 0; i < sample_num; i++) {
             printf("0x%02X ", sampled_seq[i]);
@@ -515,52 +414,51 @@ void try_hard(void) {
     }
 }
 
+static void usb_mode() {
+    printf("USB Mode (5V)\n");
+
+    // Cf. https://codeandlife.com/2012/01/29/avr-attiny-usb-tutorial-part-3/
+    
+    // TODO : Mettre un watchdog
+
+    usbInit();
+
+    usbDeviceDisconnect(); // enforce re-enumeration
+    _delay_ms(500);
+    usbDeviceConnect();
+
+    while (1) {
+        usbPoll();
+        updateHIDReport(&currentReport);
+        updateLEDs();
+
+        if (usbInterruptIsReady()) {
+            usbSetInterrupt((uchar *)&currentReport, sizeof(currentReport));
+
+            while (!usbInterruptIsReady()) {
+                usbPoll();
+            }
+        }
+    }
+}
 
 int main(void) {
 
     global_init();
 
-    // TODO : Tester avec un condo 47uF si le lancement est mieux ou pas
+    // On éteint les leds
+    // NOTE : Il restera tout de même un flash à l'allumage
+    HC595_write(0x00);
 
     printf("\n");
     printf("-------- Démarrage ------------\n");
     printf("\n");
 
     if (bit_is_clear(PINB, PINB2)) {
-        printf("USB Mode (5V)\n");
-
-        // Cf. https://codeandlife.com/2012/01/29/avr-attiny-usb-tutorial-part-3/
-        
-        // TODO : Mettre un watchdog
-
-        usbInit();
-
-        usbDeviceDisconnect(); // enforce re-enumeration
-        _delay_ms(500);
-        usbDeviceConnect();
-
-        while (1) {
-            usbPoll();
-            updateHIDReport(&currentReport);
-            updateLEDs();
-
-            if (usbInterruptIsReady())
-            {
-                usbSetInterrupt((uchar *)&currentReport, sizeof(currentReport));
-
-                while (!usbInterruptIsReady())
-                {
-                    usbPoll();
-                }
-            }
-        }
+        usb_mode();
+    } else {
+        playstation_mode();
     }
-
-    printf("Playstation 2 Mode (3.3V)\n");
-
-    disable_watchdog();
-
-    try_hard();
 
     return 0;
 }

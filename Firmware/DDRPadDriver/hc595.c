@@ -39,6 +39,8 @@
  * Prototypes and descriptions
  ******************************************************************************/
 
+static void HC595_shiftPulse(void);
+static void HC595_shiftLatch(void);
 
 /******************************************************************************
  * Local variables
@@ -49,7 +51,7 @@
  * Implements
  ******************************************************************************/
 
-//void shiftInit()
+//void HC595_init()
 //{
 //   //Make the Data(DS), Shift clock (SH_CP), Store Clock (ST_CP) lines output
 //   HC595_DDR|=((1<<HC595_CLOCK_POS)|(1<<HC595_STORE_CLOCK_POS)|(1<<HC595_SER_POS));

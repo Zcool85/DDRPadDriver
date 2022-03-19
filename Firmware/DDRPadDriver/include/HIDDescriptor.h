@@ -122,4 +122,4 @@ static const uint8_t hid_report_descriptor[] PROGMEM = {
  * Prototypes and descriptions
  ******************************************************************************/
 
-#endif
+#endif // __HID_DESCRIPTOR_H__
