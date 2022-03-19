@@ -51,11 +51,16 @@ static void HC595_shiftLatch(void);
  * Implements
  ******************************************************************************/
 
-//void HC595_init()
-//{
-//   //Make the Data(DS), Shift clock (SH_CP), Store Clock (ST_CP) lines output
-//   HC595_DDR|=((1<<HC595_CLOCK_POS)|(1<<HC595_STORE_CLOCK_POS)|(1<<HC595_SER_POS));
-//}
+void HC595_init()
+{
+    HC595_DDR |=  _BV(HC595_CLOCK_POS);             // output
+    HC595_DDR |=  _BV(HC595_STORE_CLOCK_POS);       // output
+    HC595_DDR |=  _BV(HC595_SER_POS);               // output
+
+    HC595_PORT &= ~_BV(HC595_CLOCK_POS);            // no pull-up
+    HC595_PORT &= ~_BV(HC595_STORE_CLOCK_POS);      // no pull-up
+    HC595_PORT &= ~_BV(HC595_SER_POS);              // no pull-up
+}
 
 static void HC595_shiftPulse()
 {

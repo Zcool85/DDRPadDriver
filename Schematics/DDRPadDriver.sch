@@ -279,7 +279,7 @@ F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-42742-ATmega164P_Data
 	1    0    0    -1  
 $EndComp
 Text Label 7250 2850 0    50   ~ 0
-~PS2_SS~
+~PSX_DTR~
 Wire Wire Line
 	6950 2850 7250 2850
 $Comp
@@ -426,7 +426,7 @@ SCK
 Wire Wire Line
 	4450 1950 5750 1950
 Text Label 7250 2750 0    50   ~ 0
-PS2_ACK
+PSX_DSR
 Wire Wire Line
 	7250 2750 6950 2750
 $Comp
@@ -599,17 +599,6 @@ Wire Wire Line
 	4100 5650 4450 5650
 Wire Wire Line
 	4450 5750 4100 5750
-$Comp
-L Device:C C?
-U 1 1 62366AE4
-P 2300 5450
-F 0 "C?" H 2415 5496 50  0000 L CNN
-F 1 "47uF" H 2415 5405 50  0000 L CNN
-F 2 "" H 2338 5300 50  0001 C CNN
-F 3 "~" H 2300 5450 50  0001 C CNN
-	1    2300 5450
-	1    0    0    -1  
-$EndComp
 Text GLabel 2300 5750 3    50   Input ~ 0
 GND
 Wire Wire Line
@@ -622,7 +611,7 @@ Wire Wire Line
 Text Label 3350 6750 2    50   ~ 0
 SCK
 Text Label 4050 6750 0    50   ~ 0
-PS2_SCK
+PSX_SCK
 Wire Wire Line
 	3350 6750 4050 6750
 Wire Wire Line
@@ -641,7 +630,7 @@ F 3 "~" H 3700 6850 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Text Label 4050 6850 0    50   ~ 0
-PS2_MOSI
+PSX_TXD
 Wire Wire Line
 	3350 6850 3550 6850
 Wire Wire Line
@@ -651,7 +640,7 @@ Wire Wire Line
 Text Label 3350 6950 2    50   ~ 0
 MISO
 Text Label 4050 6950 0    50   ~ 0
-PS2_MISO
+PSX_RXD
 Wire Wire Line
 	6950 3050 7250 3050
 $Comp
@@ -695,22 +684,22 @@ S 950  3000 900  750
 U 625A5B0F
 F0 "PS2 Connector" 50
 F1 "PS2Connector.sch" 50
-F2 "PS2_MISO" I R 1850 3150 50 
-F3 "PS2_MOSI" O R 1850 3250 50 
-F4 "~PS2_SS~" O R 1850 3350 50 
-F5 "PS2_SCK" O R 1850 3450 50 
-F6 "PS2_ACK" I R 1850 3550 50 
+F2 "PSX_RXD" I R 1850 3150 50 
+F3 "PSX_TXD" O R 1850 3250 50 
+F4 "~PSX_DTR~" O R 1850 3350 50 
+F5 "PSX_SCK" O R 1850 3450 50 
+F6 "PSX_DSR" I R 1850 3550 50 
 $EndSheet
 Text Label 2200 3150 0    50   ~ 0
-PS2_MISO
+PSX_RXD
 Text Label 2200 3250 0    50   ~ 0
-PS2_MOSI
+PSX_TXD
 Text Label 2200 3350 0    50   ~ 0
-~PS2_SS~
+~PSX_DTR~
 Text Label 2200 3450 0    50   ~ 0
-PS2_SCK
+PSX_SCK
 Text Label 2200 3550 0    50   ~ 0
-PS2_ACK
+PSX_DSR
 Wire Wire Line
 	1850 3150 2200 3150
 Wire Wire Line
@@ -814,22 +803,97 @@ Wire Wire Line
 	7250 5350 7250 5500
 Wire Wire Line
 	7250 5800 7250 5950
-NoConn ~ 7150 4850
-Wire Wire Line
-	7150 4850 6950 4850
 Text Label 9250 5100 2    50   ~ 0
 ~RESET~
 Wire Wire Line
 	6950 4650 7250 4650
-NoConn ~ 7150 4750
-Wire Wire Line
-	7150 4750 6950 4750
 Text Notes 5800 750  0    50   ~ 0
 Ordre PORTA et PORTC choisi\npour être conforme à l’attendu par la PS2
 Text Notes 1050 4400 0    50   ~ 0
 TODO : tester DMG2305
 Text Notes 3050 7400 0    50   ~ 0
-La ligne PS2_MISO étant en collecteur\nouvert, il ne lui faut pas de 10K.\nLa 10K sur la ligne MOSI permet de donner\npriorité à l’ISP.
+La ligne PSX_RXD étant en collecteur\nouvert, il ne lui faut pas de 10K.\nLa 10K sur la ligne PSX_TXD permet de donner\npriorité à l’ISP.
 Wire Wire Line
 	3350 6950 4050 6950
+$Comp
+L Device:CP C?
+U 1 1 623F2421
+P 2300 5450
+F 0 "C?" H 2418 5496 50  0000 L CNN
+F 1 "4.7uF" H 2418 5405 50  0000 L CNN
+F 2 "" H 2338 5300 50  0001 C CNN
+F 3 "~" H 2300 5450 50  0001 C CNN
+	1    2300 5450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:LED D?
+U 1 1 623FE3CE
+P 7700 5200
+F 0 "D?" V 7739 5082 50  0000 R CNN
+F 1 "LED" V 7648 5082 50  0000 R CNN
+F 2 "" H 7700 5200 50  0001 C CNN
+F 3 "~" H 7700 5200 50  0001 C CNN
+	1    7700 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 623FE3D8
+P 7700 5650
+F 0 "R?" H 7770 5696 50  0000 L CNN
+F 1 "470" H 7770 5605 50  0000 L CNN
+F 2 "" V 7630 5650 50  0001 C CNN
+F 3 "~" H 7700 5650 50  0001 C CNN
+	1    7700 5650
+	1    0    0    -1  
+$EndComp
+Text GLabel 7700 5950 3    50   Output ~ 0
+GND
+Wire Wire Line
+	7700 5350 7700 5500
+Wire Wire Line
+	7700 5800 7700 5950
+$Comp
+L Device:LED D?
+U 1 1 62405381
+P 8150 5200
+F 0 "D?" V 8189 5082 50  0000 R CNN
+F 1 "LED" V 8098 5082 50  0000 R CNN
+F 2 "" H 8150 5200 50  0001 C CNN
+F 3 "~" H 8150 5200 50  0001 C CNN
+	1    8150 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6240538B
+P 8150 5650
+F 0 "R?" H 8220 5696 50  0000 L CNN
+F 1 "470" H 8220 5605 50  0000 L CNN
+F 2 "" V 8080 5650 50  0001 C CNN
+F 3 "~" H 8150 5650 50  0001 C CNN
+	1    8150 5650
+	1    0    0    -1  
+$EndComp
+Text GLabel 8150 5950 3    50   Output ~ 0
+GND
+Wire Wire Line
+	8150 5350 8150 5500
+Wire Wire Line
+	8150 5800 8150 5950
+Wire Wire Line
+	8150 4750 8150 5050
+Wire Wire Line
+	6950 4750 8150 4750
+Wire Wire Line
+	7700 4850 7700 5050
+Wire Wire Line
+	6950 4850 7700 4850
+Text Notes 8200 5050 0    50   ~ 0
+PSX
+Text Notes 7750 5050 0    50   ~ 0
+USB
+Text Notes 7300 5050 0    50   ~ 0
+PAD
 $EndSCHEMATC

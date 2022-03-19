@@ -7019,13 +7019,13 @@ Wire Wire Line
 Wire Wire Line
 	1350 2200 1800 2200
 Text HLabel 1800 1400 2    50   Input ~ 0
-PS2_MISO
+PSX_RXD
 Text HLabel 1800 1500 2    50   Output ~ 0
-PS2_MOSI
+PSX_TXD
 Text HLabel 1800 1900 2    50   Output ~ 0
-~PS2_SS~
+~PSX_DTR~
 Text HLabel 1800 2000 2    50   Output ~ 0
-PS2_SCK
+PSX_SCK
 Text HLabel 1800 2200 2    50   Input ~ 0
-PS2_ACK
+PSX_DSR
 $EndSCHEMATC

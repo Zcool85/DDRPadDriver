@@ -17,6 +17,9 @@
  * Standard libraries
  ******************************************************************************/
 
+#include <stdint.h>
+
+
 /******************************************************************************
  * Header files
  ******************************************************************************/
@@ -25,33 +28,32 @@
  * Defines and typedefs (enums, typedefs, constant macro defines, function macro defines)
  ******************************************************************************/
 
-#define	PSX_SELECT		    0	// data[0] byte
-#define	PSX_L3			    1
-#define	PSX_R3			    2
-#define	PSX_START		    3
-#define	PSX_UP			    4
-#define	PSX_RIGHT		    5
-#define	PSX_DOWN			6
-#define	PSX_LEFT			7
+#define	PSX_PAD_SELECT		    0	// data[0] byte
+#define	PSX_PAD_L3			    1
+#define	PSX_PAD_R3			    2
+#define	PSX_PAD_START		    3
+#define	PSX_PAD_UP			    4
+#define	PSX_PAD_RIGHT		    5
+#define	PSX_PAD_DOWN			6
+#define	PSX_PAD_LEFT			7
 
-#define	PSX_L2			    0	// data[1] byte
-#define	PSX_R2			    1
-#define	PSX_L1			    2
-#define	PSX_R1			    3
-#define	PSX_TRIANGLE		4
-#define	PSX_CIRCLE		    5
-#define	PSX_CROSS		    6
-#define	PSX_SQUARE		    7
+#define	PSX_PAD_L2			    0	// data[1] byte
+#define	PSX_PAD_R2			    1
+#define	PSX_PAD_L1			    2
+#define	PSX_PAD_R1			    3
+#define	PSX_PAD_TRIANGLE		4
+#define	PSX_PAD_CIRCLE		    5
+#define	PSX_PAD_CROSS		    6
+#define	PSX_PAD_SQUARE		    7
 
-// Hardware specs
-#define MOSI			PB5	    // SPI MOSI; receives commands from Ps2
-#define MISO			PB6	    // SPI MISO; sends outgoing data to Ps2
-#define SCK			    PB7	    // SPI SCK; serial clock controlled by Ps2, data is read on rising edge
-#define ACK			    PB3	    // ACKNOWLEDGE, brief low pulse after each byte transfer in packet, except after final byte
-#define SS			    PB4	    // SPI slave select pin
-#define SPI_PORT		PORTB
-#define SPI_PIN			PINB
-#define SPI_DDR			DDRB
+#define PSX_PIN_DSR             PB3	    // Acknowledge, impulsion basse après chaque octet transféré, sauf pour le denrie octet
+#define PSX_PIN_DTR	            PB4	    // Slave Select
+#define PSX_PIN_TXD             PB5	    // Recoit les commandes de la Playstation (cmd)
+#define PSX_PIN_RXD             PB6	    // Envoi les données à la PS2 (dat)
+#define PSX_PIN_SCK             PB7	    // Serial clock de la Playstation (données lues sur front montant)
+#define PSX_PORT		        PORTB
+#define PSX_PIN			        PINB
+#define PSX_DDR			        DDRB
 
 
 /******************************************************************************
@@ -62,7 +64,9 @@
  * Prototypes and descriptions
  ******************************************************************************/
 
+void PSX_init(void);
 void PSX_ack(void);
 uint8_t PSX_read_byte(uint8_t data);
+void PSX_release_line(void);
 
 #endif // __PSX_H__

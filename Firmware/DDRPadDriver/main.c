@@ -15,13 +15,37 @@
 // ~.   Terminate the conversation.
 
 // Usage Serial port :
-// 230400 8-n-2
+// 115200 8-n-2
 
 //
 //         ATmega164p / ATmega324p / ATmega644p
 //
 
+//                             ------U------
+//    D- --------------- PB0 -| 1        40 |- PA0 <------------ S1-SELECT
+//    D+ --------------- PB1 -| 2        39 |- PA1 <------------ L3
+//    3V3 input -------> PB2 -| 3        38 |- PA2 <------------ R3
+//    PSX_DSR <--Hi-Z--- PB3 -| 4        37 |- PA3 <------------ S2-START
+//    PSX_DTR ---------> PB4 -| 5        36 |- PA4 <------------ UP
+//    PSX_TXD ---------> PB5 -| 6        35 |- PA5 <------------ RIGHT
+//    PSX_RXD <--Hi-Z--- PB6 -| 7        34 |- PA6 <------------ DOWN
+//    PSX_SCK ---------> PB7 -| 8        33 |- PA7 <------------ LEFT
+//                   _RESET_ -| 9        32 |- AREF
+//                       VCC -| 10       31 |- GND
+//                       GND -| 11       30 |- AVCC
+//                     XTAL2 -| 12       29 |- PC7 <------------ B3-SUARE
+//                     XTAL1 -| 13       28 |- PC6 <------------ B1-CROSS
+//    RX --------------> PD0 -| 14       27 |- PC5 <------------ B2-CIRCLE
+//    TX <-------------- PD1 -| 15       26 |- PC4 <------------ B4-TRIANGLE
+//    SHIFT_SER <------- PD2 -| 16       25 |- PC3 <------------ R1
+//    SHIFT_CLK <------- PD3 -| 17       24 |- PC2 <------------ L1
+//    SHIFT_RCK <------- PD4 -| 18       23 |- PC1 <------------ R2
+//    LED PSX <--------- PD5 -| 19       22 |- PC0 <------------ L2
+//    LED USB <--------- PD6 -| 20       21 |- PD7 ------------> LED PAD
+//                             -------------
+
 // FUSES :
+// -------
 
 // ----- extented fuse
 // Fuse      | Bit No | Description                                       | Default value                          | Desired Value
@@ -114,6 +138,14 @@ echo -n -e '\xF7' > lfuse.bin
  * Defines and typedefs (enums, typedefs, constant macro defines, function macro defines)
  ******************************************************************************/
 
+#define LED_PSX_ON()        (PORTD |=  _BV(PORTD5))
+#define LED_PSX_OFF()       (PORTD &= ~_BV(PORTD5))
+#define LED_USB_ON()        (PORTD |=  _BV(PORTD6))
+#define LED_USB_OFF()       (PORTD &= ~_BV(PORTD6))
+#define LED_PAD_ON()        (PORTD |=  _BV(PORTD7))
+#define LED_PAD_OFF()       (PORTD &= ~_BV(PORTD7))
+
+
 /******************************************************************************
  * External data déclarations (extern)
  ******************************************************************************/
@@ -134,7 +166,7 @@ static void disable_watchdog(void);
  *              du microcontroller telles que ces entrées / sorties ou la
  *              gestion de l'alimentation
  */
-static void global_init(void);
+static void init(void);
 
 /**
  * @brief       Fonction de mise à jour du prochain report à transmetrte
@@ -201,13 +233,6 @@ static void updateHIDReport(HIDReport *report)
 		| (bit_is_clear(PINC, PINA6) ? HID_MASK_BTN_15 : 0)
 		| (bit_is_clear(PINC, PINA7) ? HID_MASK_BTN_16 : 0)
 	;
-
-    // TODO : A garder ? (DEBUG)
-    if (report->buttons > 0) {
-        PORTD |=  _BV(PORTD7);
-    } else {
-        PORTD &= ~_BV(PORTD7);
-    }
 }
 
 static void updateLEDs(void) {
@@ -223,6 +248,12 @@ static void updateLEDs(void) {
         | (bit_is_clear(PINC, PINC6) ? _BV(0) : 0) // LED-UL (CROSS B1    - PC 6)
     ;
     HC595_write(leds);
+
+    if ((uint8_t)~PINA || (uint8_t)~PINC) {
+        LED_PAD_ON();
+    } else {
+        LED_PAD_OFF();
+    }
 }
 
 static void disable_watchdog(void) {
@@ -236,8 +267,10 @@ static void disable_watchdog(void) {
     WDTCSR = 0x00;
 }
 
-static void global_init(void) {
+static void init(void) {
     cli();
+
+    disable_watchdog();
 
     // Par défaut, on coupe tout
     power_adc_disable();
@@ -249,63 +282,29 @@ static void global_init(void) {
     power_usart0_disable();
     power_usart1_disable();
 
-    //                             ------U------
-    //    D- --------------- PB0 -| 1        40 |- PA0 <------------ S1-SELECT
-    //    D+ --------------- PB1 -| 2        39 |- PA1 <------------ L3
-    //    3V3 input -------> PB2 -| 3        38 |- PA2 <------------ R3
-    //    ACK <------------- PB3 -| 4        37 |- PA3 <------------ S2-START
-    //    _SS_ ------------> PB4 -| 5        36 |- PA4 <------------ UP
-    //    MOSI ------------> PB5 -| 6        35 |- PA5 <------------ RIGHT
-    //    MISO <------------ PB6 -| 7        34 |- PA6 <------------ DOWN
-    //    SCK -------------> PB7 -| 8        33 |- PA7 <------------ LEFT
-    //                   _RESET_ -| 9        32 |- AREF
-    //                       VCC -| 10       31 |- GND
-    //                       GND -| 11       30 |- AVCC
-    //                     XTAL2 -| 12       29 |- PC7 <------------ B3-SUARE
-    //                     XTAL1 -| 13       28 |- PC6 <------------ B1-CROSS
-    //    RX --------------> PD0 -| 14       27 |- PC5 <------------ B2-CIRCLE
-    //    TX <-------------- PD1 -| 15       26 |- PC4 <------------ B4-TRIANGLE
-    //    SHIFT_SER <------- PD2 -| 16       25 |- PC3 <------------ R1
-    //    SHIFT_CLK <------- PD3 -| 17       24 |- PC2 <------------ L1
-    //    SHIFT_RCK <------- PD4 -| 18       23 |- PC1 <------------ R2
-    //                       PD5 -| 19       22 |- PC0 <------------ L2
-    //                       PD6 -| 20       21 |- PD7 ------------> LED
-    //                             -------------
-
     // 1 output; 0 input
-    DDRA = 0b00000000;  // 
-    DDRB = 0b00000000;  // MISO (Hi-Z) + ACK (Hi-Z)
-    DDRC = 0b00000000;  // 
-    DDRD = 0b10011110;  // LED + TX + SHIFT Register
+    DDRA = 0b00000000;
+    DDRB = 0b00000000;
+    DDRC = 0b00000000;
+    DDRD = 0b11100000;  // LEDs output
 
-    // pull-up (set to 1)
-    PORTA = 0xFF
-           ;
-    PORTB = 0x00
-           | _BV(PB4)       // SS (pull-up)
-           | _BV(PB7)       // SCK (pull-up)
-           ;
-    PORTC = 0xFF
-           ;
-    PORTD = 0x00
-           ;
-
-    // Set Ack Hi-Z
-    SPI_DDR  &= ~_BV(ACK);      // DIR as input
-    SPI_PORT &= ~_BV(ACK);      // PORT tri state (Hi-Z)
-
-    // Set DATA (MISO) Hi-Z
-    SPI_DDR  &= ~_BV(MISO);      // DIR as input
-    SPI_PORT &= ~_BV(MISO);      // PORT tri state (Hi-Z)
+    // pull-up for pads (set to 1)
+    PORTA = 0b11111111;
+    PORTB = 0b00000000;
+    PORTC = 0b11111111;
+    PORTD = 0b00000000;
 
     USART_Init();
-    
+
     stdout = &uart_output;
     stdin  = &uart_input;
+
+    HC595_init();
 
     sei();
 }
 
+// For DEBUG purposes
 #define MAX_SAMPLES     400
 volatile uint8_t sampled_seq[MAX_SAMPLES];
 volatile uint8_t sent_seq[MAX_SAMPLES];
@@ -314,24 +313,26 @@ volatile uint16_t sample_num=0;
 static void playstation_mode() {
     printf("Playstation Mode (3.3V)\n");
 
-    disable_watchdog();
+    LED_PSX_ON();
+    LED_USB_OFF();
+
+    PSX_init();
 
     // NOTES :
     // La console interroge la manette toutes les 20ms.
-    // MISO et ACK sont en collecteur ouvert (open drain)
+    // PSX_PIN_RXD (MISO) et PSX_PIN_DSR (ACK) sont en collecteur ouvert (open drain)
     // Durée d'un ack : 2us
     // Délai entre dernier bit lu et un ack : 10us
     // Le dernrier bit n'a jamais de ACK
-    // si _SS_ high, alors la communication est terminée
+    // si _PSX_PIN_DTR_ high, alors la communication est terminée
 
     // TODO : Mettre un timer pour la sécurrité. Si timeout : Fin de la com
     // TODO : Mettre un watchdog
 
-
     while(1) {
 
-        // Wait for _SS_
-        loop_until_bit_is_clear(SPI_PIN, SS);
+        // Wait for _PSX_PIN_DTR_
+        loop_until_bit_is_clear(PSX_PIN, PSX_PIN_DTR);
 
         // NOTES :
         // - Inspiration : https://gist.github.com/scanlime/5042071
@@ -351,26 +352,26 @@ static void playstation_mode() {
         sent_seq[sample_num] = 0xFF;
         sampled_seq[sample_num++] = value;
 
-        if (value == 0x01 && bit_is_clear(SPI_PIN, SS)) {
+        if (value == 0x01 && bit_is_clear(PSX_PIN, PSX_PIN_DTR)) {
         
             PSX_ack();
             value = PSX_read_byte(0x41);
             sent_seq[sample_num] = 0x41;
             sampled_seq[sample_num++] = value;
 
-            if (value == 0x42 && bit_is_clear(SPI_PIN, SS)) {
+            if (value == 0x42 && bit_is_clear(PSX_PIN, PSX_PIN_DTR)) {
                 PSX_ack();
                 
                 value = PSX_read_byte(0x5A);
                 sent_seq[sample_num] = 0x5A;
                 sampled_seq[sample_num++] = value;
-                if (bit_is_clear(SPI_PIN, SS)) {
+                if (bit_is_clear(PSX_PIN, PSX_PIN_DTR)) {
                     PSX_ack();
                     
                     value = PSX_read_byte(PINA);
                     sent_seq[sample_num] = PINA;
                     sampled_seq[sample_num++] = value;
-                    if (bit_is_clear(SPI_PIN, SS)) {
+                    if (bit_is_clear(PSX_PIN, PSX_PIN_DTR)) {
                         PSX_ack();
                         
                         value = PSX_read_byte(PINC);
@@ -381,11 +382,10 @@ static void playstation_mode() {
             }
         }
 
-        // Set MISO Hi-Z
-        SPI_DDR  &= ~_BV(MISO);
+        PSX_release_line();
 
         // Wait end of _SS_
-        loop_until_bit_is_set(SPI_PIN, SS);
+        loop_until_bit_is_set(PSX_PIN, PSX_PIN_DTR);
 
         //
         // On a approximativement 19ms pour faire ce que l'on veut ici
@@ -417,6 +417,9 @@ static void playstation_mode() {
 static void usb_mode() {
     printf("USB Mode (5V)\n");
 
+    LED_PSX_OFF();
+    LED_USB_ON();
+
     // Cf. https://codeandlife.com/2012/01/29/avr-attiny-usb-tutorial-part-3/
     
     // TODO : Mettre un watchdog
@@ -444,11 +447,14 @@ static void usb_mode() {
 
 int main(void) {
 
-    global_init();
+    init();
 
     // On éteint les leds
     // NOTE : Il restera tout de même un flash à l'allumage
     HC595_write(0x00);
+    LED_PSX_OFF();
+    LED_USB_OFF();
+    LED_PAD_OFF();
 
     printf("\n");
     printf("-------- Démarrage ------------\n");

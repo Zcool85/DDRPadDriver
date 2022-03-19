@@ -29,6 +29,13 @@
  * Defines and typedefs (enums, typedefs, constant macro defines, function macro defines)
  ******************************************************************************/
 
+#define PSX_ACK_HIGH()      (PSX_DDR  &= ~_BV(PSX_PIN_DSR))     // Hi-Z
+#define PSX_ACK_LOW()       (PSX_DDR  |=  _BV(PSX_PIN_DSR))
+
+#define PSX_RXD_HIGH()      (PSX_DDR  &= ~_BV(PSX_PIN_RXD))     // Hi-Z
+#define PSX_RXD_LOW()       (PSX_DDR  |=  _BV(PSX_PIN_RXD))
+
+
 /******************************************************************************
  * External data déclarations (extern)
  ******************************************************************************/
@@ -45,13 +52,25 @@
  * Implements
  ******************************************************************************/
 
+void PSX_init() {
+    PSX_DDR &= ~_BV(PSX_PIN_DSR);       // input
+    PSX_DDR &= ~_BV(PSX_PIN_DTR);       // input
+    PSX_DDR &= ~_BV(PSX_PIN_TXD);       // input
+    PSX_DDR &= ~_BV(PSX_PIN_RXD);       // input
+    PSX_DDR &= ~_BV(PSX_PIN_SCK);       // input
+
+    PSX_PORT &= ~_BV(PSX_PIN_DSR);      // Hi-Z
+    PSX_PORT |=  _BV(PSX_PIN_DTR);      // pull-up
+    PSX_PORT &= ~_BV(PSX_PIN_TXD);      // Hi-Z
+    PSX_PORT &= ~_BV(PSX_PIN_RXD);      // Hi-Z
+    PSX_PORT |=  _BV(PSX_PIN_SCK);      // pull-up
+}
+
 void PSX_ack() {
     _delay_us(4);
-    // Set ack low
-    SPI_DDR  |=  _BV(ACK);
+    PSX_ACK_LOW();
     _delay_us(2);
-    // Set ack Hi-Z
-    SPI_DDR  &= ~_BV(ACK);
+    PSX_ACK_HIGH();
 }
 
 uint8_t PSX_read_byte(uint8_t data) {
@@ -65,110 +84,114 @@ uint8_t PSX_read_byte(uint8_t data) {
     uint8_t value = 0x00;
 
     if (bit_is_set(data, 0)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        PSX_RXD_HIGH();
     } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+        PSX_RXD_LOW();
     }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
+    do { } while (bit_is_set(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    do { } while (bit_is_clear(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    if (bit_is_set(PSX_PIN, PSX_PIN_TXD)) {
         value |= _BV(0);
     }
 
     if (bit_is_set(data, 1)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        PSX_RXD_HIGH();
     } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+        PSX_RXD_LOW();
     }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
+    do { } while (bit_is_set(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    do { } while (bit_is_clear(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    if (bit_is_set(PSX_PIN, PSX_PIN_TXD)) {
         value |= _BV(1);
     }
 
     if (bit_is_set(data, 2)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        PSX_RXD_HIGH();
     } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+        PSX_RXD_LOW();
     }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
+    do { } while (bit_is_set(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    do { } while (bit_is_clear(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    if (bit_is_set(PSX_PIN, PSX_PIN_TXD)) {
         value |= _BV(2);
     }
 
     if (bit_is_set(data, 3)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        PSX_RXD_HIGH();
     } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+        PSX_RXD_LOW();
     }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
+    do { } while (bit_is_set(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    do { } while (bit_is_clear(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    if (bit_is_set(PSX_PIN, PSX_PIN_TXD)) {
         value |= _BV(3);
     }
 
     if (bit_is_set(data, 4)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        PSX_RXD_HIGH();
     } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+        PSX_RXD_LOW();
     }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
+    do { } while (bit_is_set(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    do { } while (bit_is_clear(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    if (bit_is_set(PSX_PIN, PSX_PIN_TXD)) {
         value |= _BV(4);
     }
 
     if (bit_is_set(data, 5)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        PSX_RXD_HIGH();
     } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+        PSX_RXD_LOW();
     }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
+    do { } while (bit_is_set(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    do { } while (bit_is_clear(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    if (bit_is_set(PSX_PIN, PSX_PIN_TXD)) {
         value |= _BV(5);
     }
 
     if (bit_is_set(data, 6)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        PSX_RXD_HIGH();
     } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+        PSX_RXD_LOW();
     }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
+    do { } while (bit_is_set(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    do { } while (bit_is_clear(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    if (bit_is_set(PSX_PIN, PSX_PIN_TXD)) {
         value |= _BV(6);
     }
 
     if (bit_is_set(data, 7)) {
-        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+        PSX_RXD_HIGH();
     } else {
-        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+        PSX_RXD_LOW();
     }
-    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
-    if (bit_is_set(SPI_PIN, SS)) return 0x00;
-    if (bit_is_set(SPI_PIN, MOSI)) {
+    do { } while (bit_is_set(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    do { } while (bit_is_clear(PSX_PIN, PSX_PIN_SCK) && bit_is_clear(PSX_PIN, PSX_PIN_DTR));
+    if (bit_is_set(PSX_PIN, PSX_PIN_DTR)) return 0x00;
+    if (bit_is_set(PSX_PIN, PSX_PIN_TXD)) {
         value |= _BV(7);
     }
 
     return value;
+}
+
+void PSX_release_line() {
+    PSX_RXD_HIGH();
 }
 
 
