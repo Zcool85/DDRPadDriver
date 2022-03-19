@@ -89,6 +89,7 @@ echo -n -e '\xF7' > lfuse.bin
 #include <avr/wdt.h>
 #include <util/delay.h>
 #include <stdio.h>
+#include <avr/cpufunc.h>
 
 
 /******************************************************************************
@@ -263,7 +264,8 @@ static void global_init(void) {
 
     // 1 output; 0 input
     DDRA = 0b00000000;  // 
-    DDRB = 0b01001000;  // MISO + ACK
+    //DDRB = 0b01001000;  // MISO + ACK
+    DDRB = 0b00000000;  // MISO (Hi-Z) + ACK (Hi-Z)
     DDRC = 0b00000000;  // 
     DDRD = 0b10011110;  // LED + TX + SHIFT Register
 
@@ -271,7 +273,8 @@ static void global_init(void) {
     PORTA = 0xFF
            ;
     PORTB = 0x00
-           | _BV(PB4)       // SS
+           | _BV(PB4)       // SS (pull-up)
+           | _BV(PB7)       // SCK (pull-up)
            ;
     PORTC = 0xFF
            ;
@@ -289,13 +292,13 @@ static void global_init(void) {
     // Enable slave SPI
     // LSB first
     // CPOL / CPHA : Mode 3 (Cf. diagrammes https://store.curiousinventor.com/guides/PS2/)
-    SPCR = 0x00
-         //| _BV(SPIE)    // SPI Interrupt Enable
-         | _BV(SPE)
-         | _BV(DORD)
-         | _BV(CPOL)
-         | _BV(CPHA)
-         ;
+    //SPCR = 0x00
+    //     //| _BV(SPIE)    // SPI Interrupt Enable
+    //     | _BV(SPE)
+    //     | _BV(DORD)
+    //     | _BV(CPOL)
+    //     | _BV(CPHA)
+    //     ;
 
     // Déjà fait
 	//// Configure hardware SPI registers (pg.173)
@@ -306,22 +309,22 @@ static void global_init(void) {
 	/*Set up 8-bit timer/counter 2*/
 	// Timer/Counter 0 Control Register B : Prescaler set to divide system clock (8mHz) by 32 for timer clock
     // 64
-	TCCR2B	|= _BV(CS22); //_BV(CS20) | _BV(CS21);
+	//TCCR2B	|= _BV(CS22); //_BV(CS20) | _BV(CS21);
 	// Write 0x01 to TCNT2 to reset timer, check for TOV2 bit in TIFR2 for timer overflow.
 
     ///////////////// ACK v1
     // Set Ack up
-    SPI_PORT |= _BV(ACK);
+    //SPI_PORT |= _BV(ACK);
 
     ///////////////// ACK v2 : En cours de test
     // Set Ack Hi-Z
-    //SPI_DDR &= ~_BV(ACK);       // DIR as input
-    //SPI_PORT &= ~_BV(ACK);      // PORT tri state (Hi-Z)
+    SPI_DDR  &= ~_BV(ACK);      // DIR as input
+    SPI_PORT &= ~_BV(ACK);      // PORT tri state (Hi-Z)
 
     ///////////////// MISO v2 : En cours de test
-    //// Set DATA (MISO) Hi-Z
-    //DDRB &= ~_BV(PORTB6);       // DIR as input
-    //PORTB &= ~_BV(PORTB6);      // PORT tri state (Hi-Z)
+    // Set DATA (MISO) Hi-Z
+    SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    SPI_PORT &= ~_BV(MISO);      // PORT tri state (Hi-Z)
 
     USART_Init();
     
@@ -329,6 +332,35 @@ static void global_init(void) {
     stdin  = &uart_input;
 
     sei();
+}
+
+void ack(void) {
+    _delay_us(8);
+    // Set ack low
+    //SPI_PORT &= ~_BV(ACK);      // Keep port bit clear    (0,1us)
+    SPI_DDR  |=  _BV(ACK);      // Set ACK to low
+    //_delay_us(1.75);
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP(); // 1,417us
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP(); // 1,917 (_NOP = 0,1us)
+    _NOP(); // 2us
+    _NOP();
+    _NOP();
+    _NOP();
+    // Set ack Hi-Z
+    //SPI_PORT &= ~_BV(ACK);      // PORT tri state (Hi-Z) (0,1us)
+    SPI_DDR  &= ~_BV(ACK);      // DIR as input
 }
 
 //void ack(void) {
@@ -388,6 +420,262 @@ const char *bit_rep[16] = {
     [12] = "1100", [13] = "1101", [14] = "1110", [15] = "1111",
 };
 
+
+
+// Premiers signes encourageant !!
+// - Le timing est TRES serré
+// - L'optimiseur GCC ne permet pas de rester dans le timing
+// - Solution crade : NE PAS FAIRE DE BOUCLE
+// - A voir un jour : Faire cette partie en assembleur ?? :-/
+
+uint8_t read_byte(uint8_t data) {
+
+    // Read SPI value
+    uint8_t value = 0x00;
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(data, 0)) {
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    } else {
+        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    }
+    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(SPI_PIN, MOSI)) {
+        value |= _BV(0);
+    }
+
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(data, 1)) {
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    } else {
+        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    }
+    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(SPI_PIN, MOSI)) {
+        value |= _BV(1);
+    }
+
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(data, 2)) {
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    } else {
+        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    }
+    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(SPI_PIN, MOSI)) {
+        value |= _BV(2);
+    }
+
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(data, 3)) {
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    } else {
+        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    }
+    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(SPI_PIN, MOSI)) {
+        value |= _BV(3);
+    }
+
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(data, 4)) {
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    } else {
+        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    }
+    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(SPI_PIN, MOSI)) {
+        value |= _BV(4);
+    }
+
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(data, 5)) {
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    } else {
+        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    }
+    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(SPI_PIN, MOSI)) {
+        value |= _BV(5);
+    }
+
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(data, 6)) {
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    } else {
+        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    }
+    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(SPI_PIN, MOSI)) {
+        value |= _BV(6);
+    }
+
+    do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(data, 7)) {
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    } else {
+        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    }
+    do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    if (bit_is_set(SPI_PIN, MOSI)) {
+        value |= _BV(7);
+    }
+
+    //for (uint8_t i = 0; i < 8; i++)
+    //{
+    //    // Wait for clock low
+    //    //loop_until_bit_is_clear(SPI_PIN, SCK);
+    //    //do { } while (bit_is_set(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    //    //if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    //    do { } while (bit_is_set(SPI_PIN, SCK));
+    //
+    //    // Prépare sending data (LSB first)
+    //    //if ((data & 0b00000001) > 0) {
+    //    //if ((data & _BV(i)) == 0) {
+    //    if (bit_is_set(data, i)) {
+    //        // Set MISO Hi-Z
+    //        //SPI_PORT &= ~_BV(MISO);      // PORT tri state (Hi-Z)
+    //        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    //    } else {
+    //        // Set data low
+    //        //SPI_PORT &= ~_BV(MISO);      // Keep port bit clear
+    //        SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    //    }
+    //    //data >>= 1;
+    //
+    //    //if (data & (uint8_t)_BV(i)) {
+    //    //    SPI_DDR  &= ~_BV(MISO);      // DIR as input
+    //    //} else {
+    //    //    SPI_DDR  |=  _BV(MISO);      // Set ACK to low
+    //    //}
+    //
+    //    // We read on clock Hi
+    //    //loop_until_bit_is_set(SPI_PIN, SCK);
+    //    //do { } while (bit_is_clear(SPI_PIN, SCK) && bit_is_clear(SPI_PIN, SS));
+    //    //if (bit_is_set(SPI_PIN, SS)) return 0x00;
+    //    do { } while (bit_is_clear(SPI_PIN, SCK));
+    //
+    //    // Read data (LSB first)
+    //    if (bit_is_set(SPI_PIN, MOSI)) {
+    //        value |= _BV(i);
+    //    }
+    //
+    //    //value <<= 1;
+    //    //if (bit_is_set(SPI_PIN, MOSI)) {
+    //    //    value |= 0x01;
+    //    //} else {
+    //    //    value |= 0x00;
+    //    //}
+    //}
+
+    return value;
+}
+
+
+void try_hard(void) {
+
+    // NOTES :
+    // La console interroge la manette toutes les 20ms.
+    // MISO et ACK sont en collecteur ouvert (open drain)
+    // Durée d'un ack : 2us
+    // Délai entre dernier bit lu et un ack : 10us
+    // Le dernrier bit n'a jamais de ACK
+    // si _SS_ high, alors la communication est terminée
+
+    // TODO : Mettre un timer pour la sécurrité. Si timeout : Fin de la com
+
+
+    while(1) {
+
+        // Wait for _SS_
+        loop_until_bit_is_clear(SPI_PIN, SS);
+
+        // Read SPI value
+        char value1 = 0xFF;
+        char value2 = 0xFF;
+        char value3 = 0xFF;
+        char value4 = 0xFF;
+        char value5 = 0xFF;
+
+        value1 = read_byte(0xFF);
+        sent_seq[sample_num] = 0xFF;
+        sampled_seq[sample_num++] = value1;
+
+        if (value1 == 0x01 && bit_is_clear(SPI_PIN, SS)) {
+        
+            ack();
+            value2 = read_byte(0x41);
+            sent_seq[sample_num] = 0x41;
+            sampled_seq[sample_num++] = value2;
+
+            if (value2 == 0x42 && bit_is_clear(SPI_PIN, SS)) {
+                ack();
+                
+                value3 = read_byte(0x5A);
+                sent_seq[sample_num] = 0x5A;
+                sampled_seq[sample_num++] = value3;
+                if (bit_is_clear(SPI_PIN, SS)) {
+                    ack();
+                    
+                    value4 = read_byte(PINA);
+                    sent_seq[sample_num] = PINA;
+                    sampled_seq[sample_num++] = value4;
+                    if (bit_is_clear(SPI_PIN, SS)) {
+                        ack();
+                        
+                        value5 = read_byte(PINC);
+                        sent_seq[sample_num] = PINC;
+                        sampled_seq[sample_num++] = value5;
+                    }
+                }
+            }
+        }
+
+        // Set MISO Hi-Z
+        //SPI_PORT &= ~_BV(MISO);      // PORT tri state (Hi-Z)
+        SPI_DDR  &= ~_BV(MISO);      // DIR as input
+
+        // Wait end of _SS_
+        loop_until_bit_is_set(SPI_PIN, SS);
+
+        //printf("Val : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n", value1, value2, value3, value4, value5);
+
+
+        printf("TX  -> ");
+        for (uint8_t i = 0; i < sample_num; i++) {
+            printf("0x%02X ", sampled_seq[i]);
+        }
+        if (sample_num < 4) {
+            printf("(fail)");
+        }
+        printf("\n");
+        
+        printf("  RX > ");
+        for (uint8_t i = 0; i < sample_num; i++) {
+            printf("0x%02X ", sent_seq[i]);
+        }
+        printf("\n\n");
+
+        sample_num = 0;
+    }
+}
+
+
 int main(void) {
 
     global_init();
@@ -431,6 +719,14 @@ int main(void) {
     printf("Playstation 2 Mode (3.3V)\n");
 
     disable_watchdog();
+
+
+
+    try_hard();
+
+
+
+
 
     power_spi_enable();
 
@@ -477,28 +773,28 @@ int main(void) {
         //    sample_num = 0;
         //}
 
-        printf("TX  -> ");
-        for (uint8_t i = 0; i < sample_num; i++) {
-            printf("0x%02X ", sampled_seq[i]);
-        }
-        if (sample_num < 4) {
-            printf("(fail)");
-        }
-        printf("\n");
-        
-        printf("  RX > ");
-        for (uint8_t i = 0; i < sample_num; i++) {
-            printf("0x%02X ", sent_seq[i]);
-        }
-        printf("\n\n");
-
-        sample_num = 0;
-        
-        if (total > 400) {
-            while(1) {
-        
-            }
-        }
+        //printf("TX  -> ");
+        //for (uint8_t i = 0; i < sample_num; i++) {
+        //    printf("0x%02X ", sampled_seq[i]);
+        //}
+        //if (sample_num < 4) {
+        //    printf("(fail)");
+        //}
+        //printf("\n");
+        //
+        //printf("  RX > ");
+        //for (uint8_t i = 0; i < sample_num; i++) {
+        //    printf("0x%02X ", sent_seq[i]);
+        //}
+        //printf("\n\n");
+        //
+        //sample_num = 0;
+        //
+        //if (total > 400) {
+        //    while(1) {
+        //
+        //    }
+        //}
 
 
 
@@ -517,9 +813,9 @@ int main(void) {
         if (command[0] == 0x01 && bit_is_clear(SPI_PIN, SS)) {
             ACKNOWLEDGE;
             //if (first_call == 0) {
-            //    PS_AVR_COMM(0x41, command[1]);      // Digital mode
+                PS_AVR_COMM(0x41, command[1]);      // Digital mode
             //} else {
-                PS_AVR_COMM(0x73, command[1]);      // Dual shock Analogic mode (SCPH-10010)
+            //    PS_AVR_COMM(0x73, command[1]);      // Dual shock Analogic mode (SCPH-10010)
             //}
 
         //    //PS_AVR_COMM(0x41, command[1]);      // Digital mode
@@ -535,7 +831,7 @@ int main(void) {
                 if (command[2] == 0x00 && bit_is_clear(SPI_PIN, SS)) {
                     ACKNOWLEDGE;
 
-                    final_data[0] = PINA;
+                    final_data[0] = PINA;  // On a que des pull-up
 
                     PS_AVR_COMM(final_data[0], command[3]);    // first data byte (8 buttons)
 
@@ -544,7 +840,7 @@ int main(void) {
                     // après les autre command[x] sont à 0x00
                     if (bit_is_clear(SPI_PIN, SS)) {
                         ACKNOWLEDGE;
-                        final_data[1] = PINC;
+                        final_data[1] = PINC;  // On a que des pull-up
                         PS_AVR_COMM(final_data[1], command[4]);    // second data byte (8 buttons)
 
                         //if (first_call == 0) {
@@ -552,17 +848,17 @@ int main(void) {
                         //    goto fin;
                         //}
 
-                        ACKNOWLEDGE;
-                        PS_AVR_COMM(0x80, command[4]);    // right_analog_x
-                        // No check, it's rumble value ! if (command[4] != 0x00) goto fin;
-                        ACKNOWLEDGE;
-                        PS_AVR_COMM(0x80, command[4]);    // right_analog_y
-                        // No check, it's rumble value ! if (command[4] != 0x00) goto fin;
-                        ACKNOWLEDGE;
-                        PS_AVR_COMM(0x80, command[4]);    // left_analog_x
-                        // No check, it's rumble value ! if (command[4] != 0x00) goto fin;
-                        ACKNOWLEDGE;
-                        PS_AVR_COMM(0x80, command[4]);    // left_analog_y
+                        //ACKNOWLEDGE;
+                        //PS_AVR_COMM(0x80, command[4]);    // right_analog_x
+                        //// No check, it's rumble value ! if (command[4] != 0x00) goto fin;
+                        //ACKNOWLEDGE;
+                        //PS_AVR_COMM(0x80, command[4]);    // right_analog_y
+                        //// No check, it's rumble value ! if (command[4] != 0x00) goto fin;
+                        //ACKNOWLEDGE;
+                        //PS_AVR_COMM(0x80, command[4]);    // left_analog_x
+                        //// No check, it's rumble value ! if (command[4] != 0x00) goto fin;
+                        //ACKNOWLEDGE;
+                        //PS_AVR_COMM(0x80, command[4]);    // left_analog_y
                         //if (command[4] != 0x00) goto fin;
                         //ACKNOWLEDGE;
                         //PS_AVR_COMM(0x00, command[4]);    // 
@@ -602,32 +898,32 @@ int main(void) {
                     }
                 }
 
-            } else if (command[1] == 0x45 && bit_is_clear(SPI_PIN, SS)) {
-                ACKNOWLEDGE;
-                PS_AVR_COMM(0x5A, command[2]);        // filler byte, always 0x5A
-
-                if (command[2] == 0x00 && bit_is_clear(SPI_PIN, SS)) {
-                    ACKNOWLEDGE;
-
-                    final_data[0] = 0x03;   // Dual Shock
-
-                    PS_AVR_COMM(final_data[0], command[3]);    // Pad type
-                    if (command[3] != 0x5A) goto fin;
-                    ACKNOWLEDGE;
-                    PS_AVR_COMM(0x02, command[3]);    // Constante
-                    if (command[3] != 0x5A) goto fin;
-                    ACKNOWLEDGE;
-                    PS_AVR_COMM(0x00, command[3]);    // LED Off
-                    if (command[3] != 0x5A) goto fin;
-                    ACKNOWLEDGE;
-                    PS_AVR_COMM(0x02, command[3]);    // Constante
-                    if (command[3] != 0x5A) goto fin;
-                    ACKNOWLEDGE;
-                    PS_AVR_COMM(0x01, command[3]);    // Constante
-                    if (command[3] != 0x5A) goto fin;
-                    ACKNOWLEDGE;
-                    PS_AVR_COMM(0x00, command[3]);    // Constante
-                }
+            //} else if (command[1] == 0x45 && bit_is_clear(SPI_PIN, SS)) {
+            //    ACKNOWLEDGE;
+            //    PS_AVR_COMM(0x5A, command[2]);        // filler byte, always 0x5A
+//
+            //    if (command[2] == 0x00 && bit_is_clear(SPI_PIN, SS)) {
+            //        ACKNOWLEDGE;
+//
+            //        final_data[0] = 0x03;   // Dual Shock
+//
+            //        PS_AVR_COMM(final_data[0], command[3]);    // Pad type
+            //        if (command[3] != 0x5A) goto fin;
+            //        ACKNOWLEDGE;
+            //        PS_AVR_COMM(0x02, command[3]);    // Constante
+            //        if (command[3] != 0x5A) goto fin;
+            //        ACKNOWLEDGE;
+            //        PS_AVR_COMM(0x00, command[3]);    // LED Off
+            //        if (command[3] != 0x5A) goto fin;
+            //        ACKNOWLEDGE;
+            //        PS_AVR_COMM(0x02, command[3]);    // Constante
+            //        if (command[3] != 0x5A) goto fin;
+            //        ACKNOWLEDGE;
+            //        PS_AVR_COMM(0x01, command[3]);    // Constante
+            //        if (command[3] != 0x5A) goto fin;
+            //        ACKNOWLEDGE;
+            //        PS_AVR_COMM(0x00, command[3]);    // Constante
+            //    }
 
             }
 
