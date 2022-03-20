@@ -1,3 +1,6 @@
+cfg_vendor.usb
+cfg_device.usb
+
 .DS_Store
 *-bak
 Inspiration/

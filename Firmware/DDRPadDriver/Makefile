@@ -184,6 +184,25 @@ CFLAGS                  += -Wa,-adhlns=$(addprefix $(OBJDIR)/,$(notdir $(<:.c=.l
 CFLAGS                  += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS                  += -std=$(CSTANDARD)
 
+# Ajout du vendor/PID USB (licence commeciale)
+# Si fichier inexistant, on pend une valeur par défaut des VID/PID à
+# usage gratuit sur V-USB
+CFG_VENDOR_FILE := ./cfg_vendor.usb
+CFG_DEVICE_FILE := ./cfg_device.usb
+
+CFG_VENDOR_ID   := $(shell cat $(CFG_VENDOR_FILE) 2>/dev/null)
+CFG_DEVICE_ID   := $(shell cat $(CFG_DEVICE_FILE) 2>/dev/null)
+
+ifeq ($(CFG_VENDOR_ID),)
+CFG_VENDOR_ID   := 0xc0, 0x16
+endif
+ifeq ($(CFG_DEVICE_ID),)
+CFG_DEVICE_ID   := 0xdc, 0x27
+endif
+
+CFLAGS                  += -DUSB_CFG_VENDOR_ID="$(CFG_VENDOR_ID)"
+CFLAGS                  += -DUSB_CFG_DEVICE_ID="$(CFG_DEVICE_ID)"
+
 
 #-------------------------------------------------------------------------------
 # Configuration assembleur
