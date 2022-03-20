@@ -1,16 +1,19 @@
-# Intro
+# Introduction
 
-Programme pour un tapis DDR géré par un microcontroller AVR.
+Projet de création d'un tapis de dance pour le jeu Dance Dance Revollution.
 
-Le tapis peut être connecté à un PC par USB, ou directement sur une console PlayStation 2.
+Ce tapis est utilisable sur un PC pour des jeux comme `Stepmania` ou `Outfox`, mais également sur
+console Playstation (1 et 2).
 
-La partie Usage USB est OK et fonctionnelle (Pad de 16 boutons dispos).
+Le firmware est à base de microcontroller AVR ©.
 
-La partie Playstation 2 n'est toujours pas opérationnelle.
+## Licence
 
-## Tests d'USB avec un Raspberry Pi Pico
+Le présent projet est sous licence MIT (Cf. [License](LICENSE.md)).
 
-Gardé pour archivage uniquement.
+ATTENTION : Le Firmware utilise une librairie tierce V-USB pour la connexion USB vers un PC.
+Cette librairie est soumie à une licnece GNU General Public License Version 2 (GPL). Merci
+de consulter a license de cette bibliothèque en cas de modification.
 
-A creuser pour plus tard. Le projet fonctionne, mais il ne permet pas d'utiliser en même temps les touche haut et bas ou droite et gauche. Donc ceratines combinaisons DDR ne seront pas possible.
+Cf. [Librairie V-USB](https://obdev.at/products/vusb/index.html).
 

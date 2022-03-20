@@ -4,6 +4,7 @@ cfg_device.usb
 .DS_Store
 *-bak
 Inspiration/
+USB-RaspberryPi-Pico/
 bin/
 
 # Prerequisites

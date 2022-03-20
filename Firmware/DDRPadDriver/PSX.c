@@ -7,7 +7,7 @@
  *
  * @details   Code source de la gestion de la communication avec la PlayStation
  *
- * @copyright   Copyright © 2022 Zéro Cool. All rights reserved.
+ * @copyright   Copyright © 2022 Zéro Cool
  */
 
 /******************************************************************************

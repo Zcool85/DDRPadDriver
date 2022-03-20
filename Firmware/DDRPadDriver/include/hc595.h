@@ -7,7 +7,7 @@
  *
  * @details   Code source du module HC595
  *
- * @copyright   Copyright © 2022 Zéro Cool. All rights reserved.
+ * @copyright   Copyright © 2022 Zéro Cool
  */
 
 #ifndef __HC595_H__

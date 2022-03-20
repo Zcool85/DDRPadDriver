@@ -7,7 +7,7 @@
  *
  * @details   Header pour gérer la communication avec la PlayStation
  *
- * @copyright   Copyright © 2022 Zéro Cool. All rights reserved.
+ * @copyright   Copyright © 2022 Zéro Cool
  */
 
 #ifndef __PSX_H__

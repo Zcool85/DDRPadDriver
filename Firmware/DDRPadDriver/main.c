@@ -7,15 +7,8 @@
  *
  * @details   Code source du programme driver PAD DDR PS2 à base de ATmega164p
  *
- * @copyright   Copyright © 2022 Zéro Cool. All rights reserved.
+ * @copyright   Copyright © 2022 Zéro Cool
  */
-
-// sudo cu -s 9600 -l /dev/tty.usbserial-A9IM6MKT
-// sudo cu -s 115200 -l /dev/tty.usbserial-A9IM6MKT
-// ~.   Terminate the conversation.
-
-// Usage Serial port :
-// 115200 8-n-2
 
 //
 //         ATmega164p / ATmega324p / ATmega644p
@@ -91,17 +84,6 @@ echo -n -e '\xFF' > efuse.bin
 echo -n -e '\xD9' > hfuse.bin
 echo -n -e '\xF7' > lfuse.bin
 */
-
-// avrdude -C avrdude.conf -p m324p -P usb -c avrispmkII -U efuse:w:efuse.bin:r -U hfuse:w:hfuse.bin:r -U lfuse:w:lfuse.bin:r
-// avrdude -C avrdude.conf -p m324p -P usb -c stk600pp   -U efuse:w:efuse.bin:r -U hfuse:w:hfuse.bin:r -U lfuse:w:lfuse.bin:r
-
-// Show USB device on Mac OS :
-// ioreg -p IOUSB
-
-// Test gamepad sous Windows :
-// joy.cpl
-
-// Note sur les pilotes Windows : https://www.raphnet-tech.com/support/testing/index_fr.php
 
 /******************************************************************************
  * Standard libraries

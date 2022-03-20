@@ -7,7 +7,7 @@
  *
  * @details   Code source de la communication USART
  *
- * @copyright   Copyright © 2022 Zéro Cool. All rights reserved.
+ * @copyright   Copyright © 2022 Zéro Cool
  */
 
 #ifndef __USART_H__

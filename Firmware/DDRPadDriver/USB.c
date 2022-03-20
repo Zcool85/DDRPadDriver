@@ -7,7 +7,7 @@
  *
  * @details   Code source de gestion de l'USB
  *
- * @copyright   Copyright © 2022 Zéro Cool. All rights reserved.
+ * @copyright   Copyright © 2022 Zéro Cool
  */
 
 /******************************************************************************

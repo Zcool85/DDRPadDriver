@@ -7,7 +7,7 @@
  *
  * @details   Code source de la description du périphérique USB
  *
- * @copyright   Copyright © 2022 Zéro Cool. All rights reserved.
+ * @copyright   Copyright © 2022 Zéro Cool
  */
 
 #ifndef __HID_DESCRIPTOR_H__
