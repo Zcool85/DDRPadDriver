@@ -7,6 +7,12 @@ Inspiration/
 USB-RaspberryPi-Pico/
 bin/
 
+
+fp-info-cache
+
+
+*.FCStd1
+
 # Prerequisites
 *.d
 
