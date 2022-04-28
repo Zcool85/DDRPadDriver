@@ -19,7 +19,7 @@ U 1 1 62667960
 P 2200 2250
 F 0 "U3" H 2200 3031 50  0000 C CNN
 F 1 "74HC595" H 2200 2940 50  0000 C CNN
-F 2 "" H 2200 2250 50  0001 C CNN
+F 2 "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm" H 2200 2250 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/sn74hc595.pdf" H 2200 2250 50  0001 C CNN
 	1    2200 2250
 	1    0    0    -1  
@@ -147,7 +147,7 @@ AR Path="/62226A50/6267B4B5" Ref="J?"  Part="1"
 AR Path="/62582603/6267B4B5" Ref="J26"  Part="1" 
 F 0 "J26" H 10380 1492 50  0000 L CNN
 F 1 "Conn_01x02" H 10380 1401 50  0001 L CNN
-F 2 "" H 10300 1500 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x01_P2.54mm_Horizontal" H 10300 1500 50  0001 C CNN
 F 3 "~" H 10300 1500 50  0001 C CNN
 	1    10300 1500
 	1    0    0    -1  
@@ -163,8 +163,6 @@ GND12V
 Wire Wire Line
 	10000 2400 10150 2400
 Connection ~ 10000 2400
-Text Notes 8000 6300 0    50   ~ 0
-TODO : Changer les connecteurs pour les LED (+ et - à respecter)
 Wire Wire Line
 	10100 1600 10000 1600
 Wire Wire Line
@@ -292,7 +290,7 @@ AR Path="/62226A50/622646D5" Ref="J?"  Part="1"
 AR Path="/62582603/622646D5" Ref="J27"  Part="1" 
 F 0 "J27" H 10380 2892 50  0000 L CNN
 F 1 "Conn_01x02" H 10380 2801 50  0001 L CNN
-F 2 "" H 10300 2900 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x01_P2.54mm_Horizontal" H 10300 2900 50  0001 C CNN
 F 3 "~" H 10300 2900 50  0001 C CNN
 	1    10300 2900
 	1    0    0    -1  
@@ -419,7 +417,7 @@ AR Path="/62226A50/6226C6E6" Ref="J?"  Part="1"
 AR Path="/62582603/6226C6E6" Ref="J23"  Part="1" 
 F 0 "J23" H 7080 1492 50  0000 L CNN
 F 1 "Conn_01x02" H 7080 1401 50  0001 L CNN
-F 2 "" H 7000 1500 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x01_P2.54mm_Horizontal" H 7000 1500 50  0001 C CNN
 F 3 "~" H 7000 1500 50  0001 C CNN
 	1    7000 1500
 	1    0    0    -1  
@@ -548,7 +546,7 @@ AR Path="/62226A50/6226C73D" Ref="J?"  Part="1"
 AR Path="/62582603/6226C73D" Ref="J24"  Part="1" 
 F 0 "J24" H 7080 2892 50  0000 L CNN
 F 1 "Conn_01x02" H 7080 2801 50  0001 L CNN
-F 2 "" H 7000 2900 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x01_P2.54mm_Horizontal" H 7000 2900 50  0001 C CNN
 F 3 "~" H 7000 2900 50  0001 C CNN
 	1    7000 2900
 	1    0    0    -1  
@@ -675,7 +673,7 @@ AR Path="/62226A50/6227D3EF" Ref="J?"  Part="1"
 AR Path="/62582603/6227D3EF" Ref="J28"  Part="1" 
 F 0 "J28" H 10380 4292 50  0000 L CNN
 F 1 "Conn_01x02" H 10380 4201 50  0001 L CNN
-F 2 "" H 10300 4300 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x01_P2.54mm_Horizontal" H 10300 4300 50  0001 C CNN
 F 3 "~" H 10300 4300 50  0001 C CNN
 	1    10300 4300
 	1    0    0    -1  
@@ -802,7 +800,7 @@ AR Path="/62226A50/6227D446" Ref="J?"  Part="1"
 AR Path="/62582603/6227D446" Ref="J25"  Part="1" 
 F 0 "J25" H 7080 4292 50  0000 L CNN
 F 1 "Conn_01x02" H 7080 4201 50  0001 L CNN
-F 2 "" H 7000 4300 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x01_P2.54mm_Horizontal" H 7000 4300 50  0001 C CNN
 F 3 "~" H 7000 4300 50  0001 C CNN
 	1    7000 4300
 	1    0    0    -1  
@@ -929,7 +927,7 @@ AR Path="/62226A50/622C158F" Ref="J?"  Part="1"
 AR Path="/62582603/622C158F" Ref="J21"  Part="1" 
 F 0 "J21" H 3730 4292 50  0000 L CNN
 F 1 "Conn_01x02" H 3730 4201 50  0001 L CNN
-F 2 "" H 3650 4300 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x01_P2.54mm_Horizontal" H 3650 4300 50  0001 C CNN
 F 3 "~" H 3650 4300 50  0001 C CNN
 	1    3650 4300
 	1    0    0    -1  
@@ -1056,7 +1054,7 @@ AR Path="/62226A50/622C15E6" Ref="J?"  Part="1"
 AR Path="/62582603/622C15E6" Ref="J22"  Part="1" 
 F 0 "J22" H 5430 6092 50  0000 L CNN
 F 1 "Conn_01x02" H 5430 6001 50  0001 L CNN
-F 2 "" H 5350 6100 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x01_P2.54mm_Horizontal" H 5350 6100 50  0001 C CNN
 F 3 "~" H 5350 6100 50  0001 C CNN
 	1    5350 6100
 	1    0    0    -1  

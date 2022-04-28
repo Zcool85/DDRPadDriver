@@ -6989,7 +6989,7 @@ AR Path="/625ADACE" Ref="J?"  Part="1"
 AR Path="/625A5B0F/625ADACE" Ref="J29"  Part="1" 
 F 0 "J29" H 1258 2381 50  0000 C CNN
 F 1 "PS2" H 1258 2290 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x09_P2.54mm_Vertical" H 1150 1800 50  0001 C CNN
+F 2 "Connector_Dsub:DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm" H 1150 1800 50  0001 C CNN
 F 3 "~" H 1150 1800 50  0001 C CNN
 	1    1150 1800
 	1    0    0    -1  
