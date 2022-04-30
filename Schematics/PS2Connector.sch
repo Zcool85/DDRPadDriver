@@ -13,10 +13,10 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text Notes 7400 2200 0    50   ~ 0
+Text Notes 1900 3000 0    50   ~ 0
 Pin  signal dir active description\n1    dat    in  pos   data from pad or memory-card\n2    cmd   out pos   command data to pad or memory-card\n3    7V     —   —    Vibration motor\n4    gnd    —   —\n5    3V3    —   —    +3.3V power source for system\n6    sel    out  neg select pad or memory-card\n7    clk    out  —   data shift clock (500kHz, normally high on - 250kHz for PS1)\n8    —      —    —   N.A.\n9    ack    in    neg acknowladge signal from pad or memory-card\n\n1) direction(in/out) is based from PSX\n2) metal edge in pad connecter is connected pin 4 and sheald calbe.\n3) signal SEL in PAD1, PAD2 is separated.
 $Bitmap
-Pos 8700 3500
+Pos 3200 4300
 Scale 1.000000
 Data
 89 50 4E 47 0D 0A 1A 0A 00 00 00 0D 49 48 44 52 00 00 01 F4 00 00 02 35 08 02 00 00 00 AF E8 9F 
@@ -6984,48 +6984,48 @@ $EndBitmap
 $Comp
 L Connector:Conn_01x09_Male J?
 U 1 1 625ADACE
-P 1150 1800
+P 7100 3550
 AR Path="/625ADACE" Ref="J?"  Part="1" 
 AR Path="/625A5B0F/625ADACE" Ref="J29"  Part="1" 
-F 0 "J29" H 1258 2381 50  0000 C CNN
-F 1 "PS2" H 1258 2290 50  0000 C CNN
-F 2 "Connector_Dsub:DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm" H 1150 1800 50  0001 C CNN
-F 3 "~" H 1150 1800 50  0001 C CNN
-	1    1150 1800
+F 0 "J29" H 7208 4131 50  0000 C CNN
+F 1 "PS2" H 7208 4040 50  0000 C CNN
+F 2 "Connector_Dsub:DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm" H 7100 3550 50  0001 C CNN
+F 3 "~" H 7100 3550 50  0001 C CNN
+	1    7100 3550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1350 1400 1800 1400
+	7300 3150 7750 3150
 Wire Wire Line
-	1350 1500 1800 1500
-NoConn ~ 1600 1600
+	7300 3250 7750 3250
+NoConn ~ 7550 3350
 Wire Wire Line
-	1600 1600 1350 1600
-Text GLabel 2350 1700 2    50   Input ~ 0
+	7550 3350 7300 3350
+Text GLabel 8300 3450 2    50   Input ~ 0
 GND
-Text GLabel 2350 1800 2    50   Output ~ 0
+Text GLabel 8300 3550 2    50   Output ~ 0
 3V3
 Wire Wire Line
-	1350 1800 2350 1800
+	7300 3550 8300 3550
 Wire Wire Line
-	1350 1900 1800 1900
+	7300 3650 7750 3650
 Wire Wire Line
-	1350 1700 2350 1700
+	7300 3450 8300 3450
 Wire Wire Line
-	1800 2000 1350 2000
-NoConn ~ 1600 2100
+	7750 3750 7300 3750
+NoConn ~ 7550 3850
 Wire Wire Line
-	1600 2100 1350 2100
+	7550 3850 7300 3850
 Wire Wire Line
-	1350 2200 1800 2200
-Text HLabel 1800 1400 2    50   Input ~ 0
+	7300 3950 7750 3950
+Text HLabel 7750 3150 2    50   Input ~ 0
 PSX_RXD
-Text HLabel 1800 1500 2    50   Output ~ 0
+Text HLabel 7750 3250 2    50   Output ~ 0
 PSX_TXD
-Text HLabel 1800 1900 2    50   Output ~ 0
+Text HLabel 7750 3650 2    50   Output ~ 0
 ~PSX_DTR~
-Text HLabel 1800 2000 2    50   Output ~ 0
+Text HLabel 7750 3750 2    50   Output ~ 0
 PSX_SCK
-Text HLabel 1800 2200 2    50   Input ~ 0
+Text HLabel 7750 3950 2    50   Input ~ 0
 PSX_DSR
 $EndSCHEMATC

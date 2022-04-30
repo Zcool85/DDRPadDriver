@@ -19,7 +19,7 @@ U 1 1 6212648C
 P 1100 1400
 F 0 "J1" H 1157 1867 50  0000 C CNN
 F 1 "USB_B" H 1157 1776 50  0000 C CNN
-F 2 "Connector_USB:USB_B_Lumberg_2411_02_Horizontal" H 1250 1350 50  0001 C CNN
+F 2 "Connector_USB:USB_B_OST_USB-B1HSxx_Horizontal" H 1250 1350 50  0001 C CNN
 F 3 " ~" H 1250 1350 50  0001 C CNN
 	1    1100 1400
 	1    0    0    -1  
@@ -123,24 +123,24 @@ Wire Wire Line
 $Comp
 L Device:C C4
 U 1 1 6212C7CB
-P 4800 3450
-F 0 "C4" H 4915 3496 50  0000 L CNN
-F 1 "0.1uF" H 4915 3405 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" H 4838 3300 50  0001 C CNN
-F 3 "~" H 4800 3450 50  0001 C CNN
-	1    4800 3450
+P 4700 3250
+F 0 "C4" H 4815 3296 50  0000 L CNN
+F 1 "0.1uF" H 4815 3205 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" H 4738 3100 50  0001 C CNN
+F 3 "~" H 4700 3250 50  0001 C CNN
+	1    4700 3250
 	1    0    0    -1  
 $EndComp
-Text GLabel 4350 3000 0    50   Input ~ 0
+Text GLabel 4250 2800 0    50   Input ~ 0
 VCC
 Wire Wire Line
-	4350 3000 4800 3000
+	4250 2800 4700 2800
 Wire Wire Line
-	4800 3000 4800 3300
+	4700 2800 4700 3100
 Wire Wire Line
-	4800 3950 4800 3600
-Text Notes 4500 4350 0    50   ~ 0
-Découpage
+	4700 3750 4700 3400
+Text Notes 4400 4150 0    50   ~ 0
+Découplage
 Wire Wire Line
 	1750 1500 2250 1500
 Wire Wire Line
@@ -181,92 +181,92 @@ Wire Wire Line
 	1850 6950 2300 6950
 Wire Wire Line
 	2300 7050 1850 7050
-Text Label 9300 1950 2    50   ~ 0
+Text Label 9450 1700 2    50   ~ 0
 UP
-Text Label 9300 2050 2    50   ~ 0
+Text Label 9450 1800 2    50   ~ 0
 DOWN
-Text Label 9300 2150 2    50   ~ 0
+Text Label 9450 1900 2    50   ~ 0
 RIGHT
-Text Label 9300 2250 2    50   ~ 0
+Text Label 9450 2000 2    50   ~ 0
 LEFT
-Text Label 9300 2450 2    50   ~ 0
+Text Label 9450 2200 2    50   ~ 0
 L2
-Text Label 9300 2350 2    50   ~ 0
+Text Label 9450 2100 2    50   ~ 0
 R2
-Text Label 9300 1650 2    50   ~ 0
+Text Label 9450 1400 2    50   ~ 0
 S1-SELECT
-Text Label 9300 1750 2    50   ~ 0
+Text Label 9450 1500 2    50   ~ 0
 S2-START
-Text Label 9300 1850 2    50   ~ 0
+Text Label 9450 1600 2    50   ~ 0
 L1
-Text Label 9300 2550 2    50   ~ 0
+Text Label 9450 2300 2    50   ~ 0
 R1
-Text Label 9300 2650 2    50   ~ 0
+Text Label 9450 2400 2    50   ~ 0
 B1-CROSS
-Text Label 9300 2750 2    50   ~ 0
+Text Label 9450 2500 2    50   ~ 0
 B2-CIRCLE
-Text Label 9300 2850 2    50   ~ 0
+Text Label 9450 2600 2    50   ~ 0
 B3-SQUARE
-Text Label 9300 2950 2    50   ~ 0
+Text Label 9450 2700 2    50   ~ 0
 B4-TRIANGLE
 $Sheet
-S 9600 1350 900  2050
+S 9750 1100 900  2050
 U 62226A50
 F0 "Pads" 50
 F1 "Pads.sch" 50
-F2 "S1-SELECT" O L 9600 1650 50 
-F3 "S2-START" O L 9600 1750 50 
-F4 "L1" O L 9600 1850 50 
-F5 "UP" O L 9600 1950 50 
-F6 "DOWN" O L 9600 2050 50 
-F7 "RIGHT" O L 9600 2150 50 
-F8 "LEFT" O L 9600 2250 50 
-F9 "R2" O L 9600 2350 50 
-F10 "L2" O L 9600 2450 50 
-F11 "R1" O L 9600 2550 50 
-F12 "B1-CROSS" O L 9600 2650 50 
-F13 "B2-CIRCLE" O L 9600 2750 50 
-F14 "B3-SQUARE" O L 9600 2850 50 
-F15 "B4-TRIANGLE" O L 9600 2950 50 
-F16 "L3" O L 9600 3050 50 
-F17 "R3" O L 9600 3150 50 
+F2 "S1-SELECT" O L 9750 1400 50 
+F3 "S2-START" O L 9750 1500 50 
+F4 "L1" O L 9750 1600 50 
+F5 "UP" O L 9750 1700 50 
+F6 "DOWN" O L 9750 1800 50 
+F7 "RIGHT" O L 9750 1900 50 
+F8 "LEFT" O L 9750 2000 50 
+F9 "R2" O L 9750 2100 50 
+F10 "L2" O L 9750 2200 50 
+F11 "R1" O L 9750 2300 50 
+F12 "B1-CROSS" O L 9750 2400 50 
+F13 "B2-CIRCLE" O L 9750 2500 50 
+F14 "B3-SQUARE" O L 9750 2600 50 
+F15 "B4-TRIANGLE" O L 9750 2700 50 
+F16 "L3" O L 9750 2800 50 
+F17 "R3" O L 9750 2900 50 
 $EndSheet
 Text GLabel 1100 2100 3    50   Input ~ 0
 GND
 Wire Wire Line
 	1100 2100 1100 1900
-Text GLabel 4450 5850 2    50   Output ~ 0
+Text GLabel 10450 4750 2    50   Output ~ 0
 GND12V
-Text GLabel 4450 5650 2    50   Output ~ 0
+Text GLabel 10450 4550 2    50   Output ~ 0
 12V
 Wire Wire Line
-	9300 1650 9600 1650
+	9450 1400 9750 1400
 Wire Wire Line
-	9600 1750 9300 1750
+	9750 1500 9450 1500
 Wire Wire Line
-	9300 1850 9600 1850
+	9450 1600 9750 1600
 Wire Wire Line
-	9600 1950 9300 1950
+	9750 1700 9450 1700
 Wire Wire Line
-	9300 2050 9600 2050
+	9450 1800 9750 1800
 Wire Wire Line
-	9600 2150 9300 2150
+	9750 1900 9450 1900
 Wire Wire Line
-	9300 2250 9600 2250
+	9450 2000 9750 2000
 Wire Wire Line
-	9600 2350 9300 2350
+	9750 2100 9450 2100
 Wire Wire Line
-	9300 2450 9600 2450
+	9450 2200 9750 2200
 Wire Wire Line
-	9600 2550 9300 2550
+	9750 2300 9450 2300
 Wire Wire Line
-	9300 2650 9600 2650
+	9450 2400 9750 2400
 Wire Wire Line
-	9600 2750 9300 2750
+	9750 2500 9450 2500
 Wire Wire Line
-	9300 2850 9600 2850
+	9450 2600 9750 2600
 Wire Wire Line
-	9600 2950 9300 2950
+	9750 2700 9450 2700
 $Comp
 L MCU_Microchip_ATmega:ATmega164P-20PU U1
 U 1 1 63074699
@@ -526,7 +526,7 @@ Wire Wire Line
 	7250 4350 6950 4350
 Text GLabel 1350 7450 3    50   Output ~ 0
 GND
-Text GLabel 4800 3950 3    50   Output ~ 0
+Text GLabel 4700 3750 3    50   Output ~ 0
 GND
 Text GLabel 5500 2950 3    50   Output ~ 0
 GND
@@ -585,9 +585,9 @@ GND
 Text GLabel 2100 2100 3    50   Input ~ 0
 GND
 Wire Wire Line
-	4100 5650 4450 5650
+	10100 4550 10450 4550
 Wire Wire Line
-	4450 5850 4200 5850
+	10450 4750 10200 4750
 Text GLabel 2300 5750 3    50   Input ~ 0
 GND
 Wire Wire Line
@@ -659,14 +659,14 @@ Wire Wire Line
 Wire Wire Line
 	7950 2100 7950 1850
 $Sheet
-S 9600 4650 900  800 
+S 9700 5200 900  800 
 U 62582603
 F0 "LEDs" 50
 F1 "LEDs.sch" 50
-F2 "SHIFT_SER" I L 9600 4900 50 
-F3 "SHIFT_CLK" I L 9600 5000 50 
-F4 "~SHIFT_CLR~" I L 9600 5100 50 
-F5 "SHIFT_RCK" I L 9600 5200 50 
+F2 "SHIFT_SER" I L 9700 5450 50 
+F3 "SHIFT_CLK" I L 9700 5550 50 
+F4 "~SHIFT_CLR~" I L 9700 5650 50 
+F5 "SHIFT_RCK" I L 9700 5750 50 
 $EndSheet
 $Sheet
 S 950  3000 900  750 
@@ -702,47 +702,47 @@ Wire Wire Line
 $Comp
 L Connector:Conn_01x03_Male J4
 U 1 1 625DEA5A
-P 5250 6850
-F 0 "J4" H 5358 7131 50  0000 C CNN
-F 1 "Conn_01x03_Male" H 5358 7040 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 5250 6850 50  0001 C CNN
-F 3 "~" H 5250 6850 50  0001 C CNN
-	1    5250 6850
+P 3950 5050
+F 0 "J4" H 4058 5331 50  0000 C CNN
+F 1 "Conn_01x03_Male" H 4058 5240 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 3950 5050 50  0001 C CNN
+F 3 "~" H 3950 5050 50  0001 C CNN
+	1    3950 5050
 	1    0    0    -1  
 $EndComp
-Text Label 6000 6750 0    50   ~ 0
+Text Label 4700 4950 0    50   ~ 0
 RX
-Text Label 6000 6850 0    50   ~ 0
+Text Label 4700 5050 0    50   ~ 0
 TX
-Text GLabel 5750 7150 3    50   Output ~ 0
+Text GLabel 4450 5350 3    50   Output ~ 0
 GND
 Wire Wire Line
-	5450 6750 6000 6750
+	4150 4950 4700 4950
 Wire Wire Line
-	6000 6850 5450 6850
+	4700 5050 4150 5050
 Wire Wire Line
-	5450 6950 5750 6950
+	4150 5150 4450 5150
 Wire Wire Line
-	5750 6950 5750 7150
-Text Notes 5150 7250 0    50   ~ 0
+	4450 5150 4450 5350
+Text Notes 3850 5450 0    50   ~ 0
 Debug
 Text Label 7250 1650 0    50   ~ 0
 L3
 Text Label 7250 1750 0    50   ~ 0
 R3
-Text Label 9300 3050 2    50   ~ 0
+Text Label 9450 2800 2    50   ~ 0
 L3
-Text Label 9300 3150 2    50   ~ 0
+Text Label 9450 2900 2    50   ~ 0
 R3
 Wire Wire Line
-	9300 3050 9600 3050
+	9450 2800 9750 2800
 Wire Wire Line
-	9600 3150 9300 3150
-Text Label 9250 4900 2    50   ~ 0
+	9750 2900 9450 2900
+Text Label 9350 5450 2    50   ~ 0
 SHIFT_SER
-Text Label 9250 5000 2    50   ~ 0
+Text Label 9350 5550 2    50   ~ 0
 SHIFT_CLK
-Text Label 9250 5200 2    50   ~ 0
+Text Label 9350 5750 2    50   ~ 0
 SHIFT_RCK
 Text Label 7250 4450 0    50   ~ 0
 SHIFT_SER
@@ -751,13 +751,13 @@ SHIFT_CLK
 Text Label 7250 4650 0    50   ~ 0
 SHIFT_RCK
 Wire Wire Line
-	9250 4900 9600 4900
+	9350 5450 9700 5450
 Wire Wire Line
-	9600 5000 9250 5000
+	9700 5550 9350 5550
 Wire Wire Line
-	9250 5100 9600 5100
+	9350 5650 9700 5650
 Wire Wire Line
-	9600 5200 9250 5200
+	9700 5750 9350 5750
 Text Notes 750  4850 0    50   ~ 0
 750mA max
 Text Notes 800  5300 0    50   ~ 0
@@ -792,7 +792,7 @@ Wire Wire Line
 	7250 5350 7250 5500
 Wire Wire Line
 	7250 5800 7250 5950
-Text Label 9250 5100 2    50   ~ 0
+Text Label 9350 5650 2    50   ~ 0
 ~RESET~
 Wire Wire Line
 	6950 4650 7250 4650
@@ -886,19 +886,65 @@ $EndComp
 $Comp
 L Connector:Barrel_Jack_Switch J3
 U 1 1 626A6EF8
-P 3800 5750
-F 0 "J3" H 3857 6067 50  0000 C CNN
-F 1 "Barrel_Jack_Switch" H 3857 5976 50  0000 C CNN
-F 2 "Connector_BarrelJack:BarrelJack_Wuerth_6941xx301002" H 3850 5710 50  0001 C CNN
-F 3 "~" H 3850 5710 50  0001 C CNN
-	1    3800 5750
+P 9800 4650
+F 0 "J3" H 9857 4967 50  0000 C CNN
+F 1 "Barrel_Jack_Switch" H 9857 4876 50  0000 C CNN
+F 2 "Connector_BarrelJack:BarrelJack_Wuerth_6941xx301002" H 9850 4610 50  0001 C CNN
+F 3 "~" H 9850 4610 50  0001 C CNN
+	1    9800 4650
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4100 5750 4200 5750
+	10100 4650 10200 4650
 Wire Wire Line
-	4200 5750 4200 5850
-Connection ~ 4200 5850
+	10200 4650 10200 4750
+Connection ~ 10200 4750
 Wire Wire Line
-	4200 5850 4100 5850
+	10200 4750 10100 4750
+$Comp
+L Mechanical:MountingHole H1
+U 1 1 626E68AD
+P 5650 6250
+F 0 "H1" H 5750 6296 50  0000 L CNN
+F 1 "MountingHole" H 5750 6205 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 5650 6250 50  0001 C CNN
+F 3 "~" H 5650 6250 50  0001 C CNN
+	1    5650 6250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H2
+U 1 1 6270182A
+P 5650 6500
+F 0 "H2" H 5750 6546 50  0000 L CNN
+F 1 "MountingHole" H 5750 6455 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 5650 6500 50  0001 C CNN
+F 3 "~" H 5650 6500 50  0001 C CNN
+	1    5650 6500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H3
+U 1 1 62701A44
+P 5650 6750
+F 0 "H3" H 5750 6796 50  0000 L CNN
+F 1 "MountingHole" H 5750 6705 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 5650 6750 50  0001 C CNN
+F 3 "~" H 5650 6750 50  0001 C CNN
+	1    5650 6750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H4
+U 1 1 62701C98
+P 5650 7000
+F 0 "H4" H 5750 7046 50  0000 L CNN
+F 1 "MountingHole" H 5750 6955 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 5650 7000 50  0001 C CNN
+F 3 "~" H 5650 7000 50  0001 C CNN
+	1    5650 7000
+	1    0    0    -1  
+$EndComp
+Text Notes 5550 7350 0    50   ~ 0
+Mounting Holes
 $EndSCHEMATC
