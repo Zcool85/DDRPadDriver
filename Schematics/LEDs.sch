@@ -954,60 +954,22 @@ Text GLabel 4700 5950 0    50   Input ~ 0
 Wire Wire Line
 	6000 5950 6250 5950
 Wire Wire Line
-	6250 5950 6250 6300
-Wire Wire Line
-	6250 6900 6400 6900
-Wire Wire Line
 	4700 5950 4950 5950
-Wire Wire Line
-	4950 5950 4950 6300
-Wire Wire Line
-	4950 6900 5100 6900
-Wire Wire Line
-	4950 6300 5100 6300
-Connection ~ 4950 6300
-Wire Wire Line
-	4950 6300 4950 6500
-Wire Wire Line
-	4950 6500 5100 6500
-Connection ~ 4950 6500
-Wire Wire Line
-	4950 6500 4950 6700
-Wire Wire Line
-	4950 6700 5100 6700
-Connection ~ 4950 6700
-Wire Wire Line
-	4950 6700 4950 6900
-Wire Wire Line
-	6250 6300 6400 6300
-Connection ~ 6250 6300
-Wire Wire Line
-	6250 6300 6250 6500
-Wire Wire Line
-	6250 6500 6400 6500
-Connection ~ 6250 6500
-Wire Wire Line
-	6250 6500 6250 6700
-Wire Wire Line
-	6250 6700 6400 6700
-Connection ~ 6250 6700
-Wire Wire Line
-	6250 6700 6250 6900
-Text Label 4700 6400 2    50   ~ 0
+Text Label 4700 6300 2    50   ~ 0
 L-UP
-Text Label 4700 6600 2    50   ~ 0
+Text Label 4700 6500 2    50   ~ 0
 L-RIGHT
-Text Label 4700 6800 2    50   ~ 0
+Text Label 4700 6700 2    50   ~ 0
 L-DOWN
-Text Label 4700 7000 2    50   ~ 0
+Text Label 4700 6900 2    50   ~ 0
 L-LEFT
-Text Label 6000 6400 2    50   ~ 0
+Text Label 6000 6300 2    50   ~ 0
 L-CROSS
-Text Label 6000 6600 2    50   ~ 0
+Text Label 6000 6500 2    50   ~ 0
 L-CIRCLE
-Text Label 6000 6800 2    50   ~ 0
+Text Label 6000 6700 2    50   ~ 0
 L-SQUARE
-Text Label 6000 7000 2    50   ~ 0
+Text Label 6000 6900 2    50   ~ 0
 L-TRIANGLE
 Wire Wire Line
 	9100 1700 9300 1700
@@ -1040,19 +1002,57 @@ L-SQUARE
 Text Label 6850 4400 0    50   ~ 0
 L-TRIANGLE
 Wire Wire Line
-	6000 6400 6400 6400
+	4700 6300 5100 6300
 Wire Wire Line
-	6400 6600 6000 6600
+	4700 6500 5100 6500
 Wire Wire Line
-	6000 6800 6400 6800
+	4700 6700 5100 6700
 Wire Wire Line
-	6400 7000 6000 7000
+	4700 6900 5100 6900
 Wire Wire Line
-	4700 6400 5100 6400
+	4950 5950 4950 6400
 Wire Wire Line
-	5100 6600 4700 6600
+	4950 7000 5100 7000
 Wire Wire Line
-	4700 6800 5100 6800
+	5100 6800 4950 6800
+Connection ~ 4950 6800
 Wire Wire Line
-	5100 7000 4700 7000
+	4950 6800 4950 7000
+Wire Wire Line
+	5100 6600 4950 6600
+Connection ~ 4950 6600
+Wire Wire Line
+	4950 6600 4950 6800
+Wire Wire Line
+	5100 6400 4950 6400
+Connection ~ 4950 6400
+Wire Wire Line
+	4950 6400 4950 6600
+Wire Wire Line
+	6000 6300 6400 6300
+Wire Wire Line
+	6000 6500 6400 6500
+Wire Wire Line
+	6000 6700 6400 6700
+Wire Wire Line
+	6000 6900 6400 6900
+Wire Wire Line
+	6250 5950 6250 6400
+Wire Wire Line
+	6250 7000 6400 7000
+Wire Wire Line
+	6400 6800 6250 6800
+Connection ~ 6250 6800
+Wire Wire Line
+	6250 6800 6250 7000
+Wire Wire Line
+	6400 6600 6250 6600
+Connection ~ 6250 6600
+Wire Wire Line
+	6250 6600 6250 6800
+Wire Wire Line
+	6400 6400 6250 6400
+Connection ~ 6250 6400
+Wire Wire Line
+	6250 6400 6250 6600
 $EndSCHEMATC
