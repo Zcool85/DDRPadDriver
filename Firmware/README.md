@@ -43,7 +43,7 @@ Mount RESET jumper
 
 avrdude -C avrdude.conf -c stk600pp -p attiny48 -P usb -U lfuse:w:lfuse.bin:r -U hfuse:w:hfuse.bin:r -U efuse:w:efuse.bin:r
 
-#### Pour un ATtiny48-PU
+#### Pour un ATMega324p-20PU
 
 Use STK600-RC040M-5 PCB
 Use STK600-DIP PCB
