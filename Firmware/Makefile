@@ -28,7 +28,7 @@ WINSHELL                := cmd      # TODO : A remplacer par la version *nux
 
 # MCU
 #     Cf. http://www.nongnu.org/avr-libc/user-manual/using_tools.html
-MCU                     := atmega324p
+MCU                     := atmega164p
 
 # Fréquence du microcontrolleur
 #     Cette variable est utilisée pour définir le symbol F_CPU dans tous les
@@ -55,7 +55,7 @@ AVRDUDE_PORT            := usb
 
 # Définit le type de microcontrolleur à programmer pour avrdude
 #    NOTE : Liste des microcontrolleurs programmable via avrdude : avrdude -p?
-AVRDUDE_MCU             := m324p
+AVRDUDE_MCU             := m164p
 
 #-------------------------------------------------------------------------------
 # Configuration de la compilation
