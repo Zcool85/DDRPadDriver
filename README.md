@@ -1,6 +1,6 @@
 # Introduction
 
-Projet de création d'un tapis de dance pour le jeu Dance Dance Revollution.
+Projet de création d'un tapis de dance pour le jeu Dance Dance Revolution.
 
 Ce tapis est utilisable sur un PC pour des jeux comme `Stepmania` ou `Outfox`, mais également sur
 console Playstation (1 et 2).
